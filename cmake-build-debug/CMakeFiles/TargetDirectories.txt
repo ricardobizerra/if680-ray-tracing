@@ -1,0 +1,3 @@
+/home/ricardo/Documents/programando/ufpe/if680/ray-tracing/cmake-build-debug/CMakeFiles/ray_tracing.dir
+/home/ricardo/Documents/programando/ufpe/if680/ray-tracing/cmake-build-debug/CMakeFiles/edit_cache.dir
+/home/ricardo/Documents/programando/ufpe/if680/ray-tracing/cmake-build-debug/CMakeFiles/rebuild_cache.dir
