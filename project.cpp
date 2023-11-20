@@ -1,38 +1,59 @@
 #include <iostream>
+#include <cmath>
 
-// Definição da estrutura para representar um ponto no espaço 3D
-struct Point {
+using namespace std;
+
+struct Ponto {
     double x, y, z;
-
-    // Construtor para inicializar um ponto
-    Point(double x_coord, double y_coord, double z_coord) : x(x_coord), y(y_coord), z(z_coord) {}
-
-    // Método para adicionar outro ponto a este ponto
-    void add(const Point& other) {
-        x += other.x;
-        y += other.y;
-        z += other.z;
-    }
-
-    // Método para subtrair outro ponto deste ponto
-    void subtract(const Point& other) {
-        x -= other.x;
-        y -= other.y;
-        z -= other.z;
-    }
-
-    // Método para calcular o produto escalar com outro ponto
-    double dotProduct(const Point& other) const {
-        return x * other.x + y * other.y + z * other.z;
-    }
-
-    // Método para calcular o produto vetorial com outro ponto
-    Point crossProduct(const Point& other) const {
-        return Point(y * other.z - z * other.y, z * other.x - x * other.z, x * other.y - y * other.x);
-    }
+    // Construtor padrão
+    Ponto() : x(0.0), y(0.0), z(0.0) {}
+    // Construtor com parâmetros
+    Ponto(double xCoord, double yCoord, double zCoord) : x(xCoord), y(yCoord), z(zCoord) {}
 };
 
+// Definição de operações sobre pontos
+
+// Função para imprimir um ponto
+void imprimePonto(Ponto p) {
+    cout << "(" << p.x << ", " << p.y << ", " << p.z << ")" << endl;
+}
+
+// Função para somar dois pontos
+Ponto somaPontos(Ponto p1, Ponto p2) {
+    Ponto p;
+    p.x = p1.x + p2.x;
+    p.y = p1.y + p2.y;
+    p.z = p1.z + p2.z;
+    return p;
+}
+
+// Função para subtrair dois pontos
+Ponto subtraiPontos(Ponto p1, Ponto p2) {
+    Ponto p;
+    p.x = p1.x - p2.x;
+    p.y = p1.y - p2.y;
+    p.z = p1.z - p2.z;
+    return p;
+}
+
+// Função para calcular a distância entre dois pontos
+double distanciaPontos(Ponto p1, Ponto p2) {
+    double dx = p1.x - p2.x;
+    double dy = p1.y - p2.y;
+    double dz = p1.z - p2.z;
+    return sqrt(dx*dx + dy*dy + dz*dz);
+}
+
+// Função para calcular o produto escalar entre dois pontos
+double produtoEscalar(Ponto p1, Ponto p2) {
+    return p1.x*p2.x + p1.y*p2.y + p1.z*p2.z;
+}
+
+// Função principal
 int main() {
-    // Declaração de variáveis, execução do código
+    Ponto p1 = {1.0, 2.0, 3.0}; // Inicialização direta usando chaves
+    Ponto p2(4.0, 5.0, 6.0);    // Inicialização por construção usando parênteses
+    // adicionar p1 e p2
+    Ponto p3 = somaPontos(p1, p2);
     return 0;
 }
