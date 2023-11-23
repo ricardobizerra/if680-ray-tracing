@@ -57,10 +57,24 @@ struct Esfera {
         raio = r;
     }
 
-    double intersecao_esfera_reta (Vector vdiretor, Ponto P) {
+    bool intersecao_esfera_reta (Vector vdiretor, Ponto P) {
         // E: (x-xc)² + (y-yc)² + (z-zc)² = R²
-        // x² - 2 x xc + xc² + y² - 2 y yc + yc² + z² - 2 z zc + zc² = R²
-        // (P.x +vdiretor.x * t)² - 2 (P.y +vdiretor.y * t) * xc + xc² + (P.y +vdiretor.y * t)² - 2 (P.y +vdiretor.y * t) * yc + yc² + (P.z +vdiretor.z * t)² - 2 (P.y +vdiretor.y * t) * zc + zc² = R²
-        
+        // (Q - C) . (Q - C) = R²
+        // Q é um ponto qualquer (x,y,z), entao podemos substituir a equacao parametrica da reta
+        // ((P + vdiretor * t) - C) . ((P + vdiretor * t) - C) = R²
+        // (t * vdiretor + (P - C)) . (t * vdiretor + (P - C)) = R²
+        // t² * vdiretor . vdiretor + 2t vdiretor . (P - C) + (P - C) . (P - C) = R²
+        // t² * vdiretor . vdiretor + 2t vdiretor . (P - C) + (P - C) . (P - C) - R² = 0
+        // logo, a = vdiretor . vdiretor, b = 2 * vdiretor . (P - C), c = (P - C) . (P - C) - R²
+        // dito isso, podemos calcular delta
+        Vector CP = Vector(P.x - centro.x, P.y - centro.y, P.z - centro.z);
+        double a = produtoEscalar(vdiretor, vdiretor);
+        double b = 2 * produtoEscalar(vdiretor,CP);
+        double c = produtoEscalar(CP, CP) - raio * raio;
+        double delta = b * b - 4 * a * c;
+        if (delta >= 0) {
+            return true;
+        }
+        return false;
     }
 };
