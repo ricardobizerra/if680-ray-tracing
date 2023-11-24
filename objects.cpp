@@ -67,7 +67,7 @@ struct Esfera {
         raio = r;
     }
     
-    struct Intersecao_Return {
+    struct Intersecaso_Return {
         bool intersecao;
         double t;
         Ponto ponto_intersecao;

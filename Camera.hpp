@@ -4,6 +4,8 @@
 #include <iostream>
 #include <stack>
 #include <vector>
+#include <opencv2/opencv.hpp>
+
 using namespace std;
 
 struct obj_pointer {
@@ -62,14 +64,21 @@ struct camera{
                 for (auto object:objects) {
                     if (object.tipo == "Esfera") {
                         Esfera esfera = *object.ptr_esfera;
-                        bool inter_esfera = esfera.intersecao_esfera_reta(pixel, posicao);
+                        Esfera::Intersecao_Return inter_esfera = esfera.intersecao_esfera_reta(pixel, posicao);
                         // Se houver intersecao armazena
-                        
+                        if (inter_esfera.intersecao) {
+                        // scene[i][j] = (255,245,130); // Cor para uma interse ção com uma esfera
+                        scene[i][j] = color(255, 0, 0);
+                        }
                     }
                     else if (object.tipo == "Plano") {
                         Plano plano = *object.ptr_plano;
                         bool inter_plano = plano.intersecao_plano_reta(pixel, posicao);
                         // Se houver intersecao armazena
+                        if (inter_plano){
+                            scene[i][j](x,y,z) = color(0,0,255);
+                        // scene[i][j] = (150,25,49); // Cor para uma interseção com o plano
+                        }
                     }
                 }
                 // Tratar as intersecoes e colorir o pixel na matriz scene
@@ -78,9 +87,6 @@ struct camera{
             somaVetores(pixel_0_0, multiplicaVetorPorEscalar(UP, -i));
         }
     }
-
-
-
 };
 
 
