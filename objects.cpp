@@ -32,7 +32,13 @@ struct Plano {
         return false;
     }
 
-    Ponto calculo_ponto_intersecao(Vector vdiretor, Ponto P) {
+    struct Intersecao_Return {
+        bool intersecao;
+        double t;
+        Ponto ponto_intersecao;
+    };
+
+    Intersecao_Return calculo_ponto_intersecao(Vector vdiretor, Ponto P) {
         // A (P.x + vdiretor.x * t) + B (P.y + vdiretor.y * t) + C (P.z + vdiretor.z * t) + D = 0
         // termos que multiplicam t:
         double denominador = vdiretor.x * A + vdiretor.y * B + vdiretor.z * C; // denominador pois passa dividindo pro outro lados
@@ -44,7 +50,11 @@ struct Plano {
         double X = P.x + vdiretor.x * t;
         double Y = P.y + vdiretor.y * t;
         double Z = P.z + vdiretor.z * t;
-        return Ponto(X,Y,Z);
+        return {
+            true,
+            t,
+            Ponto(X, Y, Z)
+        };
     }
 };
 
@@ -56,8 +66,14 @@ struct Esfera {
         centro = P;
         raio = r;
     }
+    
+    struct Intersecao_Return {
+        bool intersecao;
+        double t;
+        Ponto ponto_intersecao;
+    };
 
-    bool intersecao_esfera_reta (Vector vdiretor, Ponto P) {
+    Intersecao_Return intersecao_esfera_reta (Vector vdiretor, Ponto P) {
         // E: (x-xc)² + (y-yc)² + (z-zc)² = R²
         // (Q - C) . (Q - C) = R²
         // Q é um ponto qualquer (x,y,z), entao podemos substituir a equacao parametrica da reta
@@ -73,8 +89,20 @@ struct Esfera {
         double c = produtoEscalar(CP, CP) - raio * raio;
         double delta = b * b - 4 * a * c;
         if (delta >= 0) {
-            return true;
+            double bhaskara_upper = -b + sqrt(delta);
+            double bhaskara_lower = 2 * a;
+            double t = bhaskara_upper / bhaskara_lower;
+
+            return {
+                true,
+                t,
+                Ponto(P.x + vdiretor.x * t, P.y + vdiretor.y * t, P.z + vdiretor.z * t)
+            };
         }
-        return false;
+        return {
+            false,
+            0,
+            Ponto(0,0,0)
+        };
     }
 };
