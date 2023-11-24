@@ -13,7 +13,7 @@ struct obj_pointer {
     Plano * ptr_plano;
     string tipo;
 
-    obj_pointer(Esfera * ponteiro_esfera , Plano * ponteiro_plano , string tipo_objeto) {
+    obj_pointer(Esfera * ponteiro_esfera , Plano * ponteiro_plano  , string tipo_objeto) {
         ptr_esfera = ponteiro_esfera;
         ptr_plano = ponteiro_plano;
         tipo = tipo_objeto;
@@ -30,8 +30,8 @@ struct camera{
     int altura;
     int largura;
     
-    camera(Ponto posicao, Ponto target) {
-        Vector k = Vector(0,0,1);
+    camera(Ponto posicao, Ponto target, Vector k) {
+        
         W = Vector(posicao.x - target.x, posicao.y - target.y, posicao.z - target.z);
         double norma_w = normaVetor(W);
         W.x = W.x/norma_w;
@@ -59,37 +59,56 @@ struct camera{
         //vector<obj_pointer> objects;
         ofstream myfile("colors.ppm");
         double scene[hres][vres];
-        cout << "P3\n"<< hres << ' '<< vres << "\n255\n" << endl;
+        myfile << "P3\n"<< hres << ' '<< vres << "\n255\n";
+        double t = 10000000;
+        
         for (int i = 0; i < vres; i++) {
+
             for (int j = 0; j < hres; j++) {
+                Vector color = Vector(0,0,0);
                 // Vetor que aponta para o pixel (soma do vetor pro pixel 0-0 para algum outro lugar)
                 Vector pixel = somaVetores(pixel_0_0, multiplicaVetorPorEscalar(U, j));
                 for (auto object:objects) {
                      // Tratar as intersecoes e colorir o pixel na matriz scene
                     // matriz[i][j] = cor
                     if (object.tipo == "Esfera") {
+                        
                         Esfera esfera = *object.ptr_esfera;
                         Esfera::Intersecao_Return inter_esfera = esfera.intersecao_esfera_reta(pixel, posicao);
                         // Se houver intersecao armazena
                         if (inter_esfera.intersecao) {
-                            myfile << 255 <<" " << 0 << " "<< 0 <<"\n";
+                            if(inter_esfera.t < t){
+                                color.x = 255; color.y = 0; color.z = 0;
+                                t = inter_esfera.t;
+                            }
+                            
                         }
+                        
                         }
                     else if (object.tipo == "Plano") {
+                        
                         Plano plano = *object.ptr_plano;
                         bool inter_plano = plano.intersecao_plano_reta(pixel, posicao);
                         // Se houver intersecao armazena
                         if (inter_plano){
-                            myfile << 0 <<" " << 0 << " "<< 255 <<"\n";
+                            Plano::Intersecao_Return inter = plano.calculo_ponto_intersecao(pixel,posicao);
+                            if(inter.t < t){
+                                color.x = 0; color.y = 0; color.z = 255;
+                                //myfile << 0 <<" " << 0 << " "<< 255 <<"\n";
+                                t = inter.t;
+                            }
                         }
+                        
                     }
-                    else{
-                        myfile << 0 <<" " << 0 << " "<< 0 <<"\n";
-                    }
+                    
                 }
+            myfile << color.x <<" " << color.y << " "<< color.z <<"\n";    
             }
+            
             somaVetores(pixel_0_0, multiplicaVetorPorEscalar(UP, -i));
         }
+        
+        
     }
 };
 

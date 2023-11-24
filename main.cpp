@@ -32,7 +32,7 @@ int main(){
     Ponto ponto_plano_ponto = Ponto(ponto_plano_x, ponto_plano_y, ponto_plano_z);
     Vector normal_plano_vector = Vector(normal_plano_x, normal_plano_y, normal_plano_z);
     
-    camera cam = camera(camera_ponto, alvo_ponto);
+    camera cam = camera(camera_ponto, alvo_ponto,up_vector);
     Esfera esfera = Esfera(centro_esfera_ponto, 1);
     Plano plano = Plano(normal_plano_vector, ponto_plano_ponto);
     vector<obj_pointer> objects;
