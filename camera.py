@@ -26,20 +26,20 @@ class Camera:
         self.UP = normalize(self.UP)
 
     def intersect(self, vetor_atual, objects):
-        menor_t= 10000000
+        menor_t= 1000000
         cor = [0, 0, 0]
         for obj in objects:
             if obj.tipo == "Esfera":
                 inter_esfera = obj.intersecao_esfera_reta(vetor_atual, self.posicao)
                 if inter_esfera.intersecao:
-                    if inter_esfera.t <= menor_t:
+                    if inter_esfera.t <= menor_t and inter_esfera.t >= 0.01:
                         cor = [255, 0, 0]
                         menor_t = inter_esfera.t
             elif obj.tipo == "Plano":
                 inter_plano = obj.intersecao_plano_reta(vetor_atual, self.posicao)
                 if inter_plano:
                     if inter_plano.intersecao:
-                        if inter_plano.t <= menor_t:
+                        if inter_plano.t <= menor_t and inter_plano.t >= 0.01:
                             cor = [0, 255, 0]
                             menor_t = inter_plano.t
         return cor

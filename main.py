@@ -14,7 +14,7 @@ def main():
     # Inicialização dos objetos Camera, Esfera e Plano com base nos dados inseridos
     cam = Camera(camera_ponto, alvo_ponto, up_vector)
     esfera = Esfera(np.array([2,0,0]), 0.25)  # Raio da esfera definido como 1
-    plano = Plano(np.array([0,-1,0]), np.array([0,1,0]))  # Ponto e vetor normal ao plano definidos como 0
+    plano = Plano(np.array([0,1,0]), np.array([0,-1,0]))  # Ponto e vetor normal ao plano definidos como 0
     objects = [plano,esfera]
     # Realização do raycasting com os parâmetros fornecidos
     cam.raycasting(1, 500, 500, objects)

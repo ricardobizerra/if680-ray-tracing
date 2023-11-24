@@ -10,11 +10,8 @@ class Plano:
         self.tipo = "Plano"
 
     def intersecao_plano_reta(self, vdiretor, P):
-        aux = np.dot(vdiretor, self.vetor_normal)
-        if aux >= 0.01:
-            calculo_ponto_intersecao = self.calculo_ponto_intersecao(vdiretor, P)
-            return calculo_ponto_intersecao
-        return False
+        calculo_ponto_intersecao = self.calculo_ponto_intersecao(vdiretor, P)
+        return calculo_ponto_intersecao
 
     class Intersecao_Return:
         def __init__(self, intersecao, t, ponto_intersecao):
@@ -26,9 +23,7 @@ class Plano:
         temp = np.dot(self.vetor_normal, vdiretor)
         if temp == 0:
             return Plano.Intersecao_Return(False, 1000000, np.array([0, 0, 0]))
-        t =  (np.dot(self.vetor_normal,self.ponto) - np.dot(self.vetor_normal,P)) / temp
-        if t <= 0:
-            return Plano.Intersecao_Return(False, 1000000, np.array([0, 0, 0]))
+        t = (np.dot(self.vetor_normal,self.ponto) - np.dot(self.vetor_normal,P)) / temp
         x = P[0] + vdiretor[0] * t
         y = P[1] + vdiretor[1] * t
         z = P[2] + vdiretor[2] * t
@@ -59,9 +54,9 @@ class Esfera:
             bhaskara_lower = 2 * a
             t = bhaskara_upper / bhaskara_lower
             t2 = bhaskara_upper2 / bhaskara_lower
-            if t<0:
+            if t<=0:
                 t = 10000
-            if t2<0:
+            if t2<=0:
                 t2 = 10000
             if t==10000 and t2==10000:
                 return Esfera.Intersecao_Return(False, 1000000, np.array([0, 0, 0]))
