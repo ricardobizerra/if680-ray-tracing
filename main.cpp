@@ -31,12 +31,17 @@ int main(){
     Ponto centro_esfera_ponto = Ponto(centro_esfera_x, centro_esfera_y, centro_esfera_z);
     Ponto ponto_plano_ponto = Ponto(ponto_plano_x, ponto_plano_y, ponto_plano_z);
     Vector normal_plano_vector = Vector(normal_plano_x, normal_plano_y, normal_plano_z);
-
+    
     camera cam = camera(camera_ponto, alvo_ponto);
     Esfera esfera = Esfera(centro_esfera_ponto, 1);
     Plano plano = Plano(normal_plano_vector, ponto_plano_ponto);
+    vector<obj_pointer> objects;
+    obj_pointer obj = obj_pointer(&esfera, nullptr, "Esfera");
+    obj_pointer obj2 = obj_pointer(nullptr, &plano, "Plano");
+    objects.push_back(obj);
+    objects.push_back(obj2);
 
-    cam.raycasting(1, 100, 100);
+    cam.raycasting(1, 100, 100,objects);
     return 0;
 
 }

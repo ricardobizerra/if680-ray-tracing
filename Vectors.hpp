@@ -113,11 +113,7 @@ void imprimeVetor(Vector v) {
 
 
 
-// Função principal
-int main() {
 
-    return 0;
-}
 
 
 #endif

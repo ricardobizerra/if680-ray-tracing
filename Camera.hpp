@@ -13,7 +13,7 @@ struct obj_pointer {
     Plano * ptr_plano;
     string tipo;
 
-    obj_pointer(Esfera * ponteiro_esfera = nullptr, Plano * ponteiro_plano = nullptr, string tipo_objeto) {
+    obj_pointer(Esfera * ponteiro_esfera , Plano * ponteiro_plano , string tipo_objeto) {
         ptr_esfera = ponteiro_esfera;
         ptr_plano = ponteiro_plano;
         tipo = tipo_objeto;
@@ -22,7 +22,6 @@ struct obj_pointer {
 
 struct camera{
     double x, y, z;
-    
     Ponto posicao;
     Vector W; // Centro da tela
     Vector U; // Aponta para o lado a direita da camera
@@ -30,6 +29,7 @@ struct camera{
     int dcamera;
     int altura;
     int largura;
+    
     camera(Ponto posicao, Ponto target) {
         Vector k = Vector(0,0,1);
         W = Vector(posicao.x - target.x, posicao.y - target.y, posicao.z - target.z);
@@ -51,12 +51,12 @@ struct camera{
         UP.z = UP.z/norma_UP;
     }
 
-    void raycasting(double distancia, int hres, int vres) {
+    void raycasting(double distancia, int hres, int vres, vector<obj_pointer> objects) {
         Vector centro_tela = multiplicaVetorPorEscalar(W, distancia);
         Vector topo_tela = multiplicaVetorPorEscalar(UP, vres/2);
         Vector esquerda_tela = multiplicaVetorPorEscalar(U, hres/2);
         Vector pixel_0_0 = somaVetores(somaVetores(centro_tela, topo_tela),esquerda_tela);
-        vector<obj_pointer> objects;
+        //vector<obj_pointer> objects;
         ofstream myfile("colors.ppm");
         double scene[hres][vres];
         cout << "P3\n"<< hres << ' '<< vres << "\n255\n" << endl;
