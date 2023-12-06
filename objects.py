@@ -67,3 +67,89 @@ class Esfera:
             return Esfera.Intersecao_Return(True, min(t,t2), np.array([x, y, z]))
         
         return Esfera.Intersecao_Return(False, 1000000, np.array([0, 0, 0]))
+
+class Malha:
+    def __init__(self, n_triangulos, n_vertices, lista_vertices, triplas, lista_normais, lista_normais_vertices, cor_normalizada):
+        self.n_triangulos = n_triangulos
+        self.n_vertices = n_vertices
+        self.tipo = "Malha"
+        self.lista_vertices = lista_vertices
+        self.triangulos = triplas
+        self.normais_t = lista_normais
+        self.normais_v = lista_normais_vertices
+        self.cor_normalizada = cor_normalizada
+
+    def intersecao_reta_malha(self, vdiretor, P):
+        menor_t = self.Intersecao_Return(False, 1000000, np.array([0, 0, 0]))
+        for idx_triangulo in range(self.n_triangulos):
+            intersecao = self.intersecao_triangulo_reta(vdiretor, P, idx_triangulo)
+            if intersecao.intersecao and intersecao.t <= menor_t.t:
+                menor_t = intersecao
+        return menor_t
+
+    class Intersecao_Return:
+        def __init__(self, intersecao, t, ponto_intersecao):
+            self.intersecao = intersecao
+            self.t = t
+            self.ponto_intersecao = ponto_intersecao
+    
+    def calculo_ponto_intersecao(self, vdiretor, P, vetor_normal, ponto_plano):
+        temp = np.dot(vetor_normal, vdiretor)
+        if temp == 0:
+            return Malha.Intersecao_Return(False, 1000000, np.array([0, 0, 0]))
+        t = (np.dot(vetor_normal, ponto_plano) - np.dot(vetor_normal,P)) / temp
+        x = P[0] + vdiretor[0] * t
+        y = P[1] + vdiretor[1] * t
+        z = P[2] + vdiretor[2] * t
+        return Malha.Intersecao_Return(True, t, np.array([x, y, z]))
+
+    def intersecao_triangulo_reta(self, vdiretor, P, idx_triangulo):
+        tripla_triangulo = self.triangulos[idx_triangulo]
+        normal_triangulo = self.normais_t[idx_triangulo]
+
+        temp = np.dot(normal_triangulo, vdiretor)
+        if temp == 0:
+            return False
+        else:
+            # Definindo coordenadas baricêntricas
+            p1 = self.lista_vertices[tripla_triangulo[0]]
+            p2 = self.lista_vertices[tripla_triangulo[1]]
+            p3 = self.lista_vertices[tripla_triangulo[2]]
+
+            p1 = np.array(p1)
+            p2 = np.array(p2)
+            p3 = np.array(p3)
+
+            intersecao_plano = self.calculo_ponto_intersecao(vdiretor, P, normal_triangulo, p1)
+
+            # c1 + c2 + c3 = 1
+            # Px = c1 * p1x + c2 * p2x + c3 * p3x
+            # Py = c1 * p1y + c2 * p2y + c3 * p3y
+            # Pz = c1 * p1z + c2 * p2z + c3 * p3z
+
+            # Para não ter que calcular a solução desse sistema linear, podemos usar uma fórmula para o cálculo dos coeficientes de forma mais direta
+            # Podemos dizer que a área que o ponto em questão com cada dupla de pontos do triângulo pode nos dar os coeficientes
+            # [t1]/[p1p2p3] + [t2]/[p1p2p3] + [t3]/[p1p2p3] = 1
+            # c1 = [t1]/[p1p2p3]
+            # c2 = [t2]/[p1p2p3]
+            # c3 = [t3]/[p1p2p3]
+
+            area_total = np.cross((p2-p1), (p3-p1)) / 2
+
+            # Check for division by zero or invalid values
+            if np.any(area_total == 0):
+                return Malha.Intersecao_Return(False, 100000, np.array([0,0,0]))
+
+            t1 = np.cross((p1 - intersecao_plano.ponto_intersecao), (p2 - intersecao_plano.ponto_intersecao)) / 2
+            t2 = np.cross((p1 - intersecao_plano.ponto_intersecao), (p3 - intersecao_plano.ponto_intersecao)) / 2
+            t3 = np.cross((p2 - intersecao_plano.ponto_intersecao), (p3 - intersecao_plano.ponto_intersecao)) / 2
+
+            c1 = t1 / area_total
+            c2 = t2 / area_total
+            c3 = t3 / area_total
+            
+            print(c1)
+            if c1 >= 0 and c2 >= 0 and c3 >= 0:
+                return intersecao_plano
+            else:
+                return Malha.Intersecao_Return(False, 100000, np.array[0,0,0])

@@ -1,5 +1,5 @@
 from vectors import Ponto, Vector, produto_escalar, produto_vetorial, multiplica_vetor_por_escalar, norma_vetor, soma_vetores
-from objects import Plano, Esfera
+from objects import Plano, Esfera, Malha
 import cv2 as cv
 import numpy as np
 
@@ -42,6 +42,13 @@ class Camera:
                         if inter_plano.t <= menor_t and inter_plano.t >= 0.01:
                             cor = [0, 255, 0]
                             menor_t = inter_plano.t
+            elif obj.tipo == "Malha":
+                inter_malha = obj.intersecao_reta_malha(vetor_atual, self.posicao)
+                if inter_malha.intersecao:
+                    if inter_malha.t <= menor_t and inter_esfera.t >= 0.01:
+                        cor = inter_malha.cor_normalizada
+                        menor_t = inter_malha.t
+
         return cor
     
     def raycasting(self, distancia, hres, vres, objects):
