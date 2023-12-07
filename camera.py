@@ -45,7 +45,7 @@ class Camera:
             elif obj.tipo == "Malha":
                 inter_malha = obj.intersecao_reta_malha(vetor_atual, self.posicao)
                 if inter_malha.intersecao:
-                    if inter_malha.t <= menor_t and inter_esfera.t >= 0.01:
+                    if inter_malha.t <= menor_t and inter_malha.t >= 0.01:
                         cor = inter_malha.cor_normalizada
                         menor_t = inter_malha.t
 

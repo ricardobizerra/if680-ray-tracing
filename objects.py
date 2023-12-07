@@ -80,7 +80,7 @@ class Malha:
         self.cor_normalizada = cor_normalizada
 
     def intersecao_reta_malha(self, vdiretor, P):
-        menor_t = self.Intersecao_Return(False, 1000000, np.array([0, 0, 0]))
+        menor_t = self.Intersecao_Return(False, 1000000, np.array([0, 0, 0]), self.cor_normalizada)
         for idx_triangulo in range(self.n_triangulos):
             intersecao = self.intersecao_triangulo_reta(vdiretor, P, idx_triangulo)
             if intersecao.intersecao and intersecao.t <= menor_t.t:
@@ -88,20 +88,21 @@ class Malha:
         return menor_t
 
     class Intersecao_Return:
-        def __init__(self, intersecao, t, ponto_intersecao):
+        def __init__(self, intersecao, t, ponto_intersecao, cor_normalizada):
             self.intersecao = intersecao
             self.t = t
             self.ponto_intersecao = ponto_intersecao
+            self.cor_normalizada = cor_normalizada
     
     def calculo_ponto_intersecao(self, vdiretor, P, vetor_normal, ponto_plano):
         temp = np.dot(vetor_normal, vdiretor)
         if temp == 0:
-            return Malha.Intersecao_Return(False, 1000000, np.array([0, 0, 0]))
+            return Malha.Intersecao_Return(False, 1000000, np.array([0, 0, 0]), self.cor_normalizada)
         t = (np.dot(vetor_normal, ponto_plano) - np.dot(vetor_normal,P)) / temp
         x = P[0] + vdiretor[0] * t
         y = P[1] + vdiretor[1] * t
         z = P[2] + vdiretor[2] * t
-        return Malha.Intersecao_Return(True, t, np.array([x, y, z]))
+        return Malha.Intersecao_Return(True, t, np.array([x, y, z]), self.cor_normalizada)
 
     def intersecao_triangulo_reta(self, vdiretor, P, idx_triangulo):
         tripla_triangulo = self.triangulos[idx_triangulo]
@@ -134,22 +135,21 @@ class Malha:
             # c2 = [t2]/[p1p2p3]
             # c3 = [t3]/[p1p2p3]
 
-            area_total = np.cross((p2-p1), (p3-p1)) / 2
+            area_total = np.linalg.norm(np.cross((p2-p1), (p3-p1))) / 2
 
             # Check for division by zero or invalid values
             if np.any(area_total == 0):
-                return Malha.Intersecao_Return(False, 100000, np.array([0,0,0]))
+                return Malha.Intersecao_Return(False, 100000, np.array([0,0,0]), self.cor_normalizada)
 
-            t1 = np.cross((p1 - intersecao_plano.ponto_intersecao), (p2 - intersecao_plano.ponto_intersecao)) / 2
-            t2 = np.cross((p1 - intersecao_plano.ponto_intersecao), (p3 - intersecao_plano.ponto_intersecao)) / 2
-            t3 = np.cross((p2 - intersecao_plano.ponto_intersecao), (p3 - intersecao_plano.ponto_intersecao)) / 2
+            t1 = np.linalg.norm(np.cross((p1 - intersecao_plano.ponto_intersecao), (p2 - intersecao_plano.ponto_intersecao))) / 2
+            t2 = np.linalg.norm(np.cross((p1 - intersecao_plano.ponto_intersecao), (p3 - intersecao_plano.ponto_intersecao))) / 2
+            t3 = np.linalg.norm(np.cross((p2 - intersecao_plano.ponto_intersecao), (p3 - intersecao_plano.ponto_intersecao))) / 2
 
             c1 = t1 / area_total
             c2 = t2 / area_total
             c3 = t3 / area_total
             
-            print(c1)
             if c1 >= 0 and c2 >= 0 and c3 >= 0:
-                return intersecao_plano
+                return Malha.Intersecao_Return(True, intersecao_plano.t, intersecao_plano.ponto_intersecao, self.cor_normalizada)
             else:
-                return Malha.Intersecao_Return(False, 100000, np.array[0,0,0])
+                return Malha.Intersecao_Return(False, 100000, np.array([0,0,0]), self.cor_normalizada)
