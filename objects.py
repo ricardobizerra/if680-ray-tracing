@@ -74,7 +74,7 @@ class Malha:
         self.n_vertices = n_vertices
         self.tipo = "Malha"
         self.lista_vertices = lista_vertices
-        self.triangulos = triplas
+        self.triangulos = triplas # Organizadas por índice
         self.normais_t = lista_normais
         self.normais_v = lista_normais_vertices
         self.cor_normalizada = cor_normalizada
@@ -110,7 +110,7 @@ class Malha:
 
         temp = np.dot(normal_triangulo, vdiretor)
         if temp == 0:
-            return False
+            return Malha.Intersecao_Return(False, 1000000, np.array([0,0,0]), self.cor_normalizada)
         else:
             # Definindo coordenadas baricêntricas
             p1 = self.lista_vertices[tripla_triangulo[0]]
@@ -137,8 +137,8 @@ class Malha:
 
             area_total = np.linalg.norm(np.cross((p2-p1), (p3-p1))) / 2
 
-            # Check for division by zero or invalid values
-            if np.any(area_total == 0):
+            # Checar se a área total deu 0
+            if area_total == 0:
                 return Malha.Intersecao_Return(False, 100000, np.array([0,0,0]), self.cor_normalizada)
 
             t1 = np.linalg.norm(np.cross((p1 - intersecao_plano.ponto_intersecao), (p2 - intersecao_plano.ponto_intersecao))) / 2
@@ -149,7 +149,7 @@ class Malha:
             c2 = t2 / area_total
             c3 = t3 / area_total
             
-            if c1 >= 0 and c2 >= 0 and c3 >= 0:
+            if c1 + c2 + c3 == 1:
                 return Malha.Intersecao_Return(True, intersecao_plano.t, intersecao_plano.ponto_intersecao, self.cor_normalizada)
             else:
                 return Malha.Intersecao_Return(False, 100000, np.array([0,0,0]), self.cor_normalizada)
