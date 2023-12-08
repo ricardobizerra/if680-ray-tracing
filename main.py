@@ -43,8 +43,8 @@ def main():
                   [(0,1,4),(1,2,4),(2,3,4),(0,3,4)],
                   [n1,n2,n3,n4],
                   [],
-                  [1,1,1])
-    objects = [esfera, plano]
+                  [[255,255,255], [255,0,0], [0,255,0], [0,0,255]])
+    objects = [malha]
     # Realização do raycasting com os parâmetros fornecidos
     cam.raycasting(1, 500, 500, objects)
 
