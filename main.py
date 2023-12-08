@@ -6,8 +6,8 @@ import numpy as np
 def main():
     # Definição dos valores para a câmera, alvo, up, centro da esfera, ponto do plano e normal ao plano   
     # Criação dos objetos Ponto e Vector com base nos valores fornecidos
-    camera_ponto =  np.array([-200, -200, 50])
-    alvo_ponto = np.array([0, 0, 50])
+    camera_ponto =  np.array([-100, 200, 100])
+    alvo_ponto = np.array([0, 0, 0])
     up_vector = np.array([0,1,0])
    
 
@@ -44,7 +44,7 @@ def main():
                   [n1,n2,n3,n4],
                   [],
                   [1,1,1])
-    objects = [malha]
+    objects = [esfera, plano]
     # Realização do raycasting com os parâmetros fornecidos
     cam.raycasting(1, 500, 500, objects)
 

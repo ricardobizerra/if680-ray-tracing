@@ -135,19 +135,16 @@ class Malha:
             # c2 = [t2]/[p1p2p3]
             # c3 = [t3]/[p1p2p3]
 
-            area_total = np.linalg.norm(np.cross((p2-p1), (p3-p1))) / 2
+            # Semireta 1 (p2 - p1)
+            vd1 = p2 - p1
+            ponto = intersecao_plano.ponto_intersecao
+            vd2 = p3 - ponto
 
-            # Checar se a área total deu 0
-            if area_total == 0:
+            dot = np.dot(vd1, vd2)
+            if dot == 0:
                 return Malha.Intersecao_Return(False, 100000, np.array([0,0,0]), self.cor_normalizada)
+            
 
-            t1 = np.linalg.norm(np.cross((p1 - intersecao_plano.ponto_intersecao), (p2 - intersecao_plano.ponto_intersecao))) / 2
-            t2 = np.linalg.norm(np.cross((p1 - intersecao_plano.ponto_intersecao), (p3 - intersecao_plano.ponto_intersecao))) / 2
-            t3 = np.linalg.norm(np.cross((p2 - intersecao_plano.ponto_intersecao), (p3 - intersecao_plano.ponto_intersecao))) / 2
-
-            c1 = t1 / area_total
-            c2 = t2 / area_total
-            c3 = t3 / area_total
             
             if c1 + c2 + c3 == 1:
                 return Malha.Intersecao_Return(True, intersecao_plano.t, intersecao_plano.ponto_intersecao, self.cor_normalizada)
