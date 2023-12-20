@@ -67,3 +67,85 @@ class Esfera:
             return Esfera.Intersecao_Return(True, min(t,t2), np.array([x, y, z]))
         
         return Esfera.Intersecao_Return(False, 1000000, np.array([0, 0, 0]))
+
+class Malha:
+    def __init__(self, n_triangulos, n_vertices, lista_vertices, triplas, lista_normais, lista_normais_vertices, lista_cores_normalizadas):
+        self.n_triangulos = n_triangulos
+        self.n_vertices = n_vertices
+        self.tipo = "Malha"
+        self.lista_vertices = lista_vertices
+        self.triangulos = triplas # Organizadas por índice
+        self.normais_t = lista_normais
+        self.normais_v = lista_normais_vertices
+        self.lista_cores_normalizadas = lista_cores_normalizadas
+
+    def intersecao_reta_malha(self, vdiretor, P):
+        menor_t = self.Intersecao_Return(False, 1000000, np.array([0, 0, 0]), self.lista_cores_normalizadas[0])
+        for idx_triangulo in range(self.n_triangulos):
+            intersecao = self.intersecao_triangulo_reta(vdiretor, P, idx_triangulo)
+            if intersecao.intersecao and intersecao.t <= menor_t.t:
+                menor_t = intersecao
+        return menor_t
+
+    class Intersecao_Return:
+        def __init__(self, intersecao, t, ponto_intersecao, cor_normalizada):
+            self.intersecao = intersecao
+            self.t = t
+            self.ponto_intersecao = ponto_intersecao
+            self.cor_normalizada = cor_normalizada
+    
+    def calculo_ponto_intersecao(self, vdiretor, P, vetor_normal, ponto_plano):
+        temp = np.dot(vetor_normal, vdiretor)
+        if temp == 0:
+            return Malha.Intersecao_Return(False, 1000000, np.array([0, 0, 0]), self.lista_cores_normalizadas[0])
+        t = (np.dot(vetor_normal, ponto_plano) - np.dot(vetor_normal,P)) / temp
+        x = P[0] + vdiretor[0] * t
+        y = P[1] + vdiretor[1] * t
+        z = P[2] + vdiretor[2] * t
+        return Malha.Intersecao_Return(True, t, np.array([x, y, z]), self.lista_cores_normalizadas[0])
+
+    def intersecao_triangulo_reta(self, vdiretor, P, idx_triangulo):
+        tripla_triangulo = self.triangulos[idx_triangulo]
+        normal_triangulo = self.normais_t[idx_triangulo]
+        cor_normalizada = self.lista_cores_normalizadas[idx_triangulo]
+
+        temp = np.dot(normal_triangulo, vdiretor)
+        if temp == 0:
+            return Malha.Intersecao_Return(False, 1000000, np.array([0,0,0]), cor_normalizada)
+        else:
+            # Definindo coordenadas baricêntricas
+            p1 = self.lista_vertices[tripla_triangulo[0]]
+            p2 = self.lista_vertices[tripla_triangulo[1]]
+            p3 = self.lista_vertices[tripla_triangulo[2]]
+
+            p1 = np.array(p1)
+            p2 = np.array(p2)
+            p3 = np.array(p3)
+
+            intersecao_plano = self.calculo_ponto_intersecao(vdiretor, P, normal_triangulo, p1)
+
+            if intersecao_plano.intersecao:
+                ponto_intersecao = intersecao_plano.ponto_intersecao
+                v0 = p2 - p1
+                v1 = p3 - p1
+                v2 = ponto_intersecao - p1
+
+                d00 = np.dot(v0, v0)
+                d01 = np.dot(v0, v1)
+                d11 = np.dot(v1, v1)
+                d20 = np.dot(v2, v0)
+                d21 = np.dot(v2, v1)
+
+                denom = d00 * d11 - d01 * d01
+
+                v = (d11 * d20 - d01 * d21) / denom
+                w = (d00 * d21 - d01 * d20) / denom
+                u = 1.0 - v - w
+
+                if v >= 0 and w >= 0 and u >= 0:
+                    return Malha.Intersecao_Return(True, intersecao_plano.t, ponto_intersecao, cor_normalizada)
+                else:
+                    return Malha.Intersecao_Return(False, 1000000, np.array([0,0,0]), cor_normalizada)
+            else:
+                return Malha.Intersecao_Return(False, 1000000, np.array([0,0,0]), cor_normalizada)
+            
