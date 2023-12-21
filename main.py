@@ -3,6 +3,7 @@ from objects import Esfera, Plano, Malha
 from camera import Camera
 from transform import affine_transform
 import numpy as np
+import math
 
 def main():
     # Definição dos valores para a câmera, alvo, up, centro da esfera, ponto do plano e normal ao plano   
