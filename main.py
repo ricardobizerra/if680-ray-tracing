@@ -1,7 +1,9 @@
 from vectors import Ponto, Vector
 from objects import Esfera, Plano, Malha
 from camera import Camera
+from transform import affine_transform
 import numpy as np
+import math
 
 def main():
     # Definição dos valores para a câmera, alvo, up, centro da esfera, ponto do plano e normal ao plano   
@@ -10,6 +12,9 @@ def main():
     alvo_ponto = np.array([0, 0, 0])
     up_vector = np.array([0,1,0])
    
+    # Transformações afins realizadas nos objetos Ponto e Vector
+    # camera_ponto = affine_transform(camera_ponto, 'translate', 2, 0, 8, 0)
+    # up_vector = affine_transform(up_vector, 'rotate_x', angle=math.pi/2)
 
     # Inicialização dos objetos Camera, Esfera e Plano com base nos dados inseridos
     cam = Camera(camera_ponto, alvo_ponto, up_vector)
