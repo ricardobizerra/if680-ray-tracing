@@ -32,7 +32,7 @@ class Camera:
                 para cada luz i:
                     componente_difusa = I_l[i] * O_d * k_d * (N * L[i])
                     componente_especular = I_l[i] * k_s * (R[i] * V)^n
-                I = componente_ambiente + componente_difusa + componente_especular
+                cor_final = componente_ambiente + componente_difusa + componente_especular
 
         Args:
             k_a (entre 0 e 1) = coeficiente de reflexão do ambiente. O quanto o objeto é afetado pela reflexão da luz ambiente.
@@ -58,15 +58,24 @@ class Camera:
             n ([0:inf)) = rugosidade
 
         Returns:
-            I (da forma [255, 255, 255]) = conjunto RGB que representa a cor final do pixel em questão. Cada componente de I tem que ser menor ou igual a 255 
+            cor_final (da forma [255, 255, 255]) = conjunto RGB que representa a cor final do pixel em questão. Cada componente de I tem que ser menor ou igual a 255 
         """
         componente_ambiente = k_a * I_a
 
         componente_difusa = np.zeros(3)
+        componente_especular = np.zeros(3)
+
         for i in range(min(len(I_l), len(R))):
-            componente_difusa += (k_d * np.array(O_d) * np.array(I_l[i]) * np.maximum(0, np.dot(N, L[i]))) + (np.array(I_l[i]) * k_s * np.maximum(0, np.dot(R[i], V)) ** n)
+            componente_difusa += k_d * np.array(O_d) * np.array(I_l[i]) * np.maximum(0, np.dot(N, L[i]))
+            componente_especular += np.array(I_l[i]) * k_s * np.maximum(0, np.dot(R[i], V)) ** n
         
-        cor_final = componente_ambiente + componente_difusa
+        # Phong
+        cor_final = componente_ambiente + componente_difusa + componente_especular
+
+        # Tratando cor final para cada componente ser menor ou igual a 255
+        for i in cor_final:
+            if i > 255:
+                cor_final[i] = 255
         return cor_final
 
     def intersect(self, vetor_atual, objects):
