@@ -4,10 +4,11 @@ import numpy as np
 
 
 class Plano:
-    def __init__(self, v, P):
+    def __init__(self, v, P, cor):
         self.vetor_normal = v
         self.ponto = P
         self.tipo = "Plano"
+        self.cor = cor
 
     def intersecao_plano_reta(self, vdiretor, P):
         calculo_ponto_intersecao = self.calculo_ponto_intersecao(vdiretor, P)
@@ -30,10 +31,11 @@ class Plano:
         return Plano.Intersecao_Return(True, t, np.array([x, y, z]))
 
 class Esfera:
-    def __init__(self, P, r):
+    def __init__(self, P, r, cor):
         self.centro = P
         self.raio = r
         self.tipo = "Esfera"
+        self.cor = cor
 
     class Intersecao_Return:
         def __init__(self, intersecao, t, ponto_intersecao):
@@ -69,7 +71,7 @@ class Esfera:
         return Esfera.Intersecao_Return(False, 1000000, np.array([0, 0, 0]))
 
 class Malha:
-    def __init__(self, n_triangulos, n_vertices, lista_vertices, triplas, lista_normais, lista_normais_vertices, lista_cores_normalizadas):
+    def __init__(self, n_triangulos, n_vertices, lista_vertices, triplas, lista_normais, lista_normais_vertices, lista_cores_normalizadas, cor):
         self.n_triangulos = n_triangulos
         self.n_vertices = n_vertices
         self.tipo = "Malha"
@@ -78,6 +80,7 @@ class Malha:
         self.normais_t = lista_normais
         self.normais_v = lista_normais_vertices
         self.lista_cores_normalizadas = lista_cores_normalizadas
+        self.cor = cor
 
     def intersecao_reta_malha(self, vdiretor, P):
         menor_t = self.Intersecao_Return(False, 1000000, np.array([0, 0, 0]), self.lista_cores_normalizadas[0])
