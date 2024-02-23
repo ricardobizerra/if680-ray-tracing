@@ -82,10 +82,10 @@ class Camera:
         menor_t = 1000000
         cor = [0, 0, 0]
         for obj in objects:
-            array_pontos_luz = np.array([np.array([0, 1, 1])])  # Fontes de luz
+            array_pontos_luz = np.array([np.array([0, 1, 1]), np.array([100, 50, 10])])  # Fontes de luz
             # Parâmetros da equação de Phong
             cor_luz_ambiente = np.array([0,240,225])
-            I_l = np.array([np.array([255, 245, 0])])
+            I_l = np.array([np.array([255, 245, 0]), np.array([255, 100, 255])])
             k_ambiente = 0.2
             k_difuso = 0.5
             k_especular = 0.5
