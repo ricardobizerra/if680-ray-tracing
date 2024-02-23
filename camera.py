@@ -86,7 +86,7 @@ class Camera:
             vetor_normal = normalize(self.k)
             array_vetores_luz = np.array([np.array([0, 1, 1])])  # Vetor de luz direcional
             # Parâmetros da equação de Phong
-            cor_luz_ambiente = np.array([255, 255, 255])
+            cor_luz_ambiente = np.array([0,240,225])
             I_l = np.array([np.array([255, 245, 0])])
             k_ambiente = 0.2
             k_difuso = 0.5
