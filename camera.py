@@ -65,7 +65,7 @@ class Camera:
         componente_difusa = np.zeros(3)
         componente_especular = np.zeros(3)
 
-        for i in range(min(len(I_l), len(R))):
+        for i in range(len(I_l)):
             componente_difusa += k_d * np.array(O_d) * np.array(I_l[i]) * np.maximum(0, np.dot(N, L[i]))
             componente_especular += np.array(I_l[i]) * k_s * np.maximum(0, np.dot(R[i], V)) ** n
         
@@ -73,23 +73,17 @@ class Camera:
         cor_final = componente_ambiente + componente_difusa + componente_especular
 
         # Tratando cor final para cada componente ser menor ou igual a 255
-        for i in range(len(cor_final)):
-            if cor_final[i] > 255:
-                cor_final[i] = 255
+        cor_final = np.clip(cor_final, 0, 255)
         return cor_final
 
     def intersect(self, vetor_atual, objects):
         menor_t = 1000000
         cor = [0, 0, 0]
         for obj in objects:
-            array_pontos_luz = np.array([np.array([0, 1, 1]), np.array([100, 50, 10])])  # Fontes de luz
+            array_pontos_luz = np.array([np.array([0, 2, -2])])  # Fontes de luz
             # Parâmetros da equação de Phong
-            cor_luz_ambiente = np.array([0,240,225])
-            I_l = np.array([np.array([255, 245, 0]), np.array([255, 100, 255])])
-            k_ambiente = 0.2
-            k_difuso = 0.5
-            k_especular = 0.5
-            n = 32
+            cor_luz_ambiente = np.array([255,255,255])
+            I_l = np.array([np.array([255, 245, 0])])
             
             R_array = [] # Inicializando R
             array_vetores_luz = [] # Inicializando array de vetores para luz
@@ -112,17 +106,17 @@ class Camera:
 
                         # Calcular a cor do pixel usando a equação de Phong
                         cor_final = self.phong(
-                                k_a=k_ambiente,
+                                k_a=obj.k_ambiente,
                                 I_a=cor_luz_ambiente,
                                 I_l=I_l,
-                                k_d=k_difuso,
+                                k_d=obj.k_difuso,
                                 O_d=obj.cor,
                                 N=vetor_normal,
                                 L=array_vetores_luz,
-                                k_s=k_especular,
+                                k_s=obj.k_especular,
                                 R=R_array,
                                 V=normalize(vetor_atual),
-                                n=n
+                                n=obj.n
                                 )
                         cor = cor_final
                         menor_t = inter_esfera.t
@@ -142,17 +136,17 @@ class Camera:
 
                         # Calcular a cor do pixel usando a equação de Phong
                         cor_final = self.phong(
-                                k_a=k_ambiente,
+                                k_a=obj.k_ambiente,
                                 I_a=cor_luz_ambiente,
                                 I_l=I_l,
-                                k_d=k_difuso,
+                                k_d=obj.k_difuso,
                                 O_d=obj.cor,
                                 N=vetor_normal,
                                 L=array_vetores_luz,
-                                k_s=k_especular,
+                                k_s=obj.k_especular,
                                 R=R_array,
                                 V=normalize(vetor_atual),
-                                n=n
+                                n=obj.n
                                 )
                         cor = cor_final
                         menor_t = inter_plano.t
@@ -172,17 +166,17 @@ class Camera:
 
                         # Calcular a cor do pixel usando a equação de Phong
                         cor_final = self.phong(
-                                k_a=k_ambiente,
+                                k_a=obj.k_ambiente,
                                 I_a=cor_luz_ambiente,
                                 I_l=I_l,
-                                k_d=k_difuso,
+                                k_d=obj.k_difuso,
                                 O_d=obj.cor,
                                 N=vetor_normal,
                                 L=array_vetores_luz,
-                                k_s=k_especular,
+                                k_s=obj.k_especular,
                                 R=R_array,
                                 V=normalize(vetor_atual),
-                                n=n
+                                n=obj.n
                                 )
                         cor = cor_final
                         menor_t = inter_malha.t
