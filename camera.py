@@ -83,15 +83,26 @@ class Camera:
         cor = [0, 0, 0]
         for obj in objects:
             # pegue o vetor normal no ponto de interseção
-            vetor_normal = self.k
-            vetor_luz = np.array([0, 1, 1])  # Vetor de luz direcional
+            vetor_normal = normalize(self.k)
+            array_vetores_luz = np.array([np.array([0, 1, 1])])  # Vetor de luz direcional
             # Parâmetros da equação de Phong
-            cor_luz_ambiente = np.array([0.1, 0.1, 0.1])
+            cor_luz_ambiente = np.array([255, 255, 255])
             I_l = np.array([np.array([255, 245, 0])])
             k_ambiente = 0.2
             k_difuso = 0.5
             k_especular = 0.5
             n = 32
+            
+            R_array = [] # Inicializando R
+
+            # Normalizando vetores dos arrays:
+            for i in range(len(array_vetores_luz)):
+                array_vetores_luz[i] = normalize(array_vetores_luz[i])
+                vetor_luz = array_vetores_luz[i]
+                vetor_refletido = 2 * np.dot(vetor_normal, vetor_luz) * vetor_normal - vetor_luz
+                R_array.append(vetor_refletido)
+
+            R_array = np.array([R_array])
 
             # Calcular a cor do pixel usando a equação de Phong
             cor_final = self.phong(
@@ -101,10 +112,10 @@ class Camera:
                 k_d=k_difuso,
                 O_d=obj.cor,
                 N=vetor_normal,
-                L=vetor_luz,
+                L=array_vetores_luz,
                 k_s=k_especular,
-                R=np.dot(2*vetor_normal, np.dot(vetor_normal, vetor_luz)) - vetor_luz,
-                V=vetor_atual,
+                R=R_array,
+                V=normalize(vetor_atual),
                 n=n
             )
             for i in cor_final:
