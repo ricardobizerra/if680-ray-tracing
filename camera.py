@@ -26,13 +26,48 @@ class Camera:
         self.UP = normalize(self.UP)
     
     def phong(self, k_a, I_a, I_l, k_d, O_d, N, L, k_s, R, V, n):
-        first = k_a * I_a
+        """ Calcula a cor final de um pixel segundo a equação de phong
+            Phong:
+                componente_ambiente = k_a * I_a
+                para cada luz i:
+                    componente_difusa = I_l[i] * O_d * k_d * (N * L[i])
+                    componente_especular = I_l[i] * k_s * (R[i] * V)^n
+                I = componente_ambiente + componente_difusa + componente_especular
 
-        second = np.zeros(3)
+        Args:
+            k_a (entre 0 e 1) = coeficiente de reflexão do ambiente. O quanto o objeto é afetado pela reflexão da luz ambiente.
+
+            I_a (da forma [255,255,255]) = conjunto RGB que representa a cor da luz ambiente.
+
+            I_l (da forma [[255,255,255], [255,255,0], ...]) = array de componentes RGB, um para cada luz do ambiente.
+
+            k_d (entre 0 e 1)= coeficiente de difusão do objeto
+
+            O_d (da forma [255,255,255]) = conjunto RGB que representa a cor do objeto
+
+            N (vetor_normalizado) = vetor normal do objeto
+
+            L (array de vetores normalizados) = array de vetores que vão do ponto para cada luz
+
+            k_s (entre 0 e 1) = coeficiente de especularidade
+
+            R (array de vetores normalizados) = array de vetores refletidos (depende do observador, um para cada objeto de luz)
+
+            V (vetor_normalizado) = Vetor que vai até o observador (câmera)
+
+            n ([0:inf)) = rugosidade
+
+        Returns:
+            I (da forma [255, 255, 255]) = conjunto RGB que representa a cor final do pixel em questão. Cada componente de I tem que ser menor ou igual a 255 
+        """
+        componente_ambiente = k_a * I_a
+
+        componente_difusa = np.zeros(3)
         for i in range(min(len(I_l), len(R))):
-            second += (k_d * np.array(O_d) * np.array(I_l[i]) * np.maximum(0, np.dot(N, L[i]))) + (np.array(I_l[i]) * k_s * np.maximum(0, np.dot(R[i], V)) ** n)
+            componente_difusa += (k_d * np.array(O_d) * np.array(I_l[i]) * np.maximum(0, np.dot(N, L[i]))) + (np.array(I_l[i]) * k_s * np.maximum(0, np.dot(R[i], V)) ** n)
         
-        return first + second
+        cor_final = componente_ambiente + componente_difusa
+        return cor_final
 
     def intersect(self, vetor_atual, objects):
         menor_t = 1000000
@@ -63,6 +98,9 @@ class Camera:
                 V=vetor_atual,
                 n=n
             )
+            for i in cor_final:
+                if i > 255:
+                    cor_final[i] = 255
 
             # Atualizar a cor do pixel se a interseção for menor que a menor encontrada até agora
             if obj.tipo == "Esfera":
