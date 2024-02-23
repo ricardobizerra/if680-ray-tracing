@@ -45,7 +45,7 @@ class Camera:
 
             O_d (da forma [255,255,255]) = conjunto RGB que representa a cor do objeto
 
-            N (vetor_normalizado) = vetor normal do objeto
+            N (vetor_normalizado) = vetor normal do ponto onde ocorreu a interseção
 
             L (array de vetores normalizados) = array de vetores que vão do ponto para cada luz
 
@@ -73,8 +73,8 @@ class Camera:
         cor_final = componente_ambiente + componente_difusa + componente_especular
 
         # Tratando cor final para cada componente ser menor ou igual a 255
-        for i in cor_final:
-            if i > 255:
+        for i in range(len(cor_final)):
+            if cor_final[i] > 255:
                 cor_final[i] = 255
         return cor_final
 
@@ -82,9 +82,7 @@ class Camera:
         menor_t = 1000000
         cor = [0, 0, 0]
         for obj in objects:
-            # pegue o vetor normal no ponto de interseção
-            vetor_normal = normalize(self.k)
-            array_vetores_luz = np.array([np.array([0, 1, 1])])  # Vetor de luz direcional
+            array_pontos_luz = np.array([np.array([0, 1, 1])])  # Fontes de luz
             # Parâmetros da equação de Phong
             cor_luz_ambiente = np.array([0,240,225])
             I_l = np.array([np.array([255, 245, 0])])
@@ -94,52 +92,99 @@ class Camera:
             n = 32
             
             R_array = [] # Inicializando R
+            array_vetores_luz = [] # Inicializando array de vetores para luz
 
-            # Normalizando vetores dos arrays:
-            for i in range(len(array_vetores_luz)):
-                array_vetores_luz[i] = normalize(array_vetores_luz[i])
-                vetor_luz = array_vetores_luz[i]
-                vetor_refletido = 2 * np.dot(vetor_normal, vetor_luz) * vetor_normal - vetor_luz
-                R_array.append(vetor_refletido)
-
-            R_array = np.array([R_array])
-
-            # Calcular a cor do pixel usando a equação de Phong
-            cor_final = self.phong(
-                k_a=k_ambiente,
-                I_a=cor_luz_ambiente,
-                I_l=I_l,
-                k_d=k_difuso,
-                O_d=obj.cor,
-                N=vetor_normal,
-                L=array_vetores_luz,
-                k_s=k_especular,
-                R=R_array,
-                V=normalize(vetor_atual),
-                n=n
-            )
-            for i in cor_final:
-                if i > 255:
-                    cor_final[i] = 255
 
             # Atualizar a cor do pixel se a interseção for menor que a menor encontrada até agora
             if obj.tipo == "Esfera":
                 inter_esfera = obj.intersecao_esfera_reta(vetor_atual, self.posicao)
                 if inter_esfera.intersecao:
                     if inter_esfera.t <= menor_t and inter_esfera.t >= 0.01:
-                        cor += cor_final
+                        # Cálculo do vetor normal do ponto:
+                        vetor_normal = normalize(inter_esfera.ponto_intersecao - obj.centro)
+
+                        # Definindo e normalizando vetores dos arrays:
+                        for i in range(len(array_pontos_luz)):
+                            vetor_luz = normalize(array_pontos_luz[i] - inter_esfera.ponto_intersecao)
+                            array_vetores_luz.append(vetor_luz)
+                            vetor_refletido = 2 * np.dot(vetor_normal, vetor_luz) * vetor_normal - vetor_luz
+                            R_array.append(vetor_refletido)
+
+                        # Calcular a cor do pixel usando a equação de Phong
+                        cor_final = self.phong(
+                                k_a=k_ambiente,
+                                I_a=cor_luz_ambiente,
+                                I_l=I_l,
+                                k_d=k_difuso,
+                                O_d=obj.cor,
+                                N=vetor_normal,
+                                L=array_vetores_luz,
+                                k_s=k_especular,
+                                R=R_array,
+                                V=normalize(vetor_atual),
+                                n=n
+                                )
+                        cor = cor_final
                         menor_t = inter_esfera.t
             elif obj.tipo == "Plano":
                 inter_plano = obj.intersecao_plano_reta(vetor_atual, self.posicao)
                 if inter_plano.intersecao:
                     if inter_plano.t <= menor_t and inter_plano.t >= 0.01:
-                        cor += cor_final
+                        # Cálculo do vetor normal do ponto:
+                        vetor_normal = obj.vetor_normal
+
+                        # Definindo e normalizando vetores dos arrays:
+                        for i in range(len(array_pontos_luz)):
+                            vetor_luz = normalize(array_pontos_luz[i] - inter_plano.ponto_intersecao)
+                            array_vetores_luz.append(vetor_luz)
+                            vetor_refletido = 2 * np.dot(vetor_normal, vetor_luz) * vetor_normal - vetor_luz
+                            R_array.append(vetor_refletido)
+
+                        # Calcular a cor do pixel usando a equação de Phong
+                        cor_final = self.phong(
+                                k_a=k_ambiente,
+                                I_a=cor_luz_ambiente,
+                                I_l=I_l,
+                                k_d=k_difuso,
+                                O_d=obj.cor,
+                                N=vetor_normal,
+                                L=array_vetores_luz,
+                                k_s=k_especular,
+                                R=R_array,
+                                V=normalize(vetor_atual),
+                                n=n
+                                )
+                        cor = cor_final
                         menor_t = inter_plano.t
             elif obj.tipo == "Malha":
                 inter_malha = obj.intersecao_reta_malha(vetor_atual, self.posicao)
                 if inter_malha.intersecao:
                     if inter_malha.t <= menor_t and inter_malha.t >= 0.01:
-                        cor += cor_final
+                        # Cálculo do vetor normal do ponto:
+                        vetor_normal = inter_malha.normal_ponto
+
+                        # Definindo e normalizando vetores dos arrays:
+                        for i in range(len(array_pontos_luz)):
+                            vetor_luz = normalize(array_pontos_luz[i] - inter_malha.ponto_intersecao)
+                            array_vetores_luz.append(vetor_luz)
+                            vetor_refletido = 2 * np.dot(vetor_normal, vetor_luz) * vetor_normal - vetor_luz
+                            R_array.append(vetor_refletido)
+
+                        # Calcular a cor do pixel usando a equação de Phong
+                        cor_final = self.phong(
+                                k_a=k_ambiente,
+                                I_a=cor_luz_ambiente,
+                                I_l=I_l,
+                                k_d=k_difuso,
+                                O_d=obj.cor,
+                                N=vetor_normal,
+                                L=array_vetores_luz,
+                                k_s=k_especular,
+                                R=R_array,
+                                V=normalize(vetor_atual),
+                                n=n
+                                )
+                        cor = cor_final
                         menor_t = inter_malha.t
 
         return cor

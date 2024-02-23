@@ -83,7 +83,7 @@ class Malha:
         self.cor = cor
 
     def intersecao_reta_malha(self, vdiretor, P):
-        menor_t = self.Intersecao_Return(False, 1000000, np.array([0, 0, 0]), self.lista_cores_normalizadas[0])
+        menor_t = self.Intersecao_Return(False, 1000000, np.array([0, 0, 0]), self.lista_cores_normalizadas[0], None)
         for idx_triangulo in range(self.n_triangulos):
             intersecao = self.intersecao_triangulo_reta(vdiretor, P, idx_triangulo)
             if intersecao.intersecao and intersecao.t <= menor_t.t:
@@ -91,21 +91,22 @@ class Malha:
         return menor_t
 
     class Intersecao_Return:
-        def __init__(self, intersecao, t, ponto_intersecao, cor_normalizada):
+        def __init__(self, intersecao, t, ponto_intersecao, cor_normalizada, normal_ponto):
             self.intersecao = intersecao
             self.t = t
             self.ponto_intersecao = ponto_intersecao
             self.cor_normalizada = cor_normalizada
+            self.normal_ponto = normal_ponto
     
     def calculo_ponto_intersecao(self, vdiretor, P, vetor_normal, ponto_plano):
         temp = np.dot(vetor_normal, vdiretor)
         if temp == 0:
-            return Malha.Intersecao_Return(False, 1000000, np.array([0, 0, 0]), self.lista_cores_normalizadas[0])
+            return Malha.Intersecao_Return(False, 1000000, np.array([0, 0, 0]), self.lista_cores_normalizadas[0], None)
         t = (np.dot(vetor_normal, ponto_plano) - np.dot(vetor_normal,P)) / temp
         x = P[0] + vdiretor[0] * t
         y = P[1] + vdiretor[1] * t
         z = P[2] + vdiretor[2] * t
-        return Malha.Intersecao_Return(True, t, np.array([x, y, z]), self.lista_cores_normalizadas[0])
+        return Malha.Intersecao_Return(True, t, np.array([x, y, z]), self.lista_cores_normalizadas[0], vetor_normal)
 
     def intersecao_triangulo_reta(self, vdiretor, P, idx_triangulo):
         tripla_triangulo = self.triangulos[idx_triangulo]
@@ -114,7 +115,7 @@ class Malha:
 
         temp = np.dot(normal_triangulo, vdiretor)
         if temp == 0:
-            return Malha.Intersecao_Return(False, 1000000, np.array([0,0,0]), cor_normalizada)
+            return Malha.Intersecao_Return(False, 1000000, np.array([0,0,0]), cor_normalizada, None)
         else:
             # Definindo coordenadas baricêntricas
             p1 = self.lista_vertices[tripla_triangulo[0]]
@@ -146,9 +147,9 @@ class Malha:
                 u = 1.0 - v - w
 
                 if v >= 0 and w >= 0 and u >= 0:
-                    return Malha.Intersecao_Return(True, intersecao_plano.t, ponto_intersecao, cor_normalizada)
+                    return Malha.Intersecao_Return(True, intersecao_plano.t, ponto_intersecao, cor_normalizada, normal_triangulo)
                 else:
-                    return Malha.Intersecao_Return(False, 1000000, np.array([0,0,0]), cor_normalizada)
+                    return Malha.Intersecao_Return(False, 1000000, np.array([0,0,0]), cor_normalizada, None)
             else:
-                return Malha.Intersecao_Return(False, 1000000, np.array([0,0,0]), cor_normalizada)
+                return Malha.Intersecao_Return(False, 1000000, np.array([0,0,0]), cor_normalizada, None)
             
