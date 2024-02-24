@@ -35,7 +35,7 @@ class Plano:
         return Plano.Intersecao_Return(True, t, np.array([x, y, z]))
 
 class Esfera:
-    def __init__(self, centro, raio, cor, k_ambiente, k_difuso, k_especular, n):
+    def __init__(self, centro, raio, cor, k_ambiente, k_difuso, k_especular, k_reflexao, n):
         self.centro = centro
         self.raio = raio
         self.tipo = "Esfera"
@@ -43,6 +43,7 @@ class Esfera:
         self.k_ambiente = k_ambiente
         self.k_difuso = k_difuso
         self.k_especular = k_especular
+        self.k_reflexao = k_reflexao
         self.n = n
 
     class Intersecao_Return:

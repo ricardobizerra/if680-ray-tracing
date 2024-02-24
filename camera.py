@@ -25,7 +25,7 @@ class Camera:
         self.UP = np.cross(self.W, self.U) * -1
         self.UP = normalize(self.UP)
     
-    def phong(self, k_a, I_a, I_l, k_d, O_d, N, L, k_s, R, V, n):
+    def phong(self, k_a, I_a, I_l, k_d, O_d, N, L, k_s, R, V, n, lim_r, k_r, vetor_camera, objects, ponto_intersecao, contador_r = 0):
         """ Calcula a cor final de um pixel segundo a equação de phong
             Phong:
                 componente_ambiente = k_a * I_a
@@ -57,6 +57,18 @@ class Camera:
 
             n ([0:inf)) = rugosidade
 
+            lim_r (int) = limite de recursão, aumenta em um em cada chamada recursiva de phong.
+
+            k_r (entre 0 e 1) = coeficiente de reflexão do objeto
+
+            vetor_camera (vetor normalizado) = raio que vem do observador (usado para calcular reflexão)
+
+            objects (array de objetos) = lista dos objetos da cena para chamada recursiva de phong
+
+            ponto_intersecao (da forma [1,0,0]) = ponto onde ocorreu a interseção e foi chamado phong
+
+            contador_r (int) = incrementa em um a cada chamada recursiva de phong
+
         Returns:
             cor_final (da forma [255, 255, 255]) = conjunto RGB que representa a cor final do pixel em questão. Cada componente de I tem que ser menor ou igual a 255 
         """
@@ -64,20 +76,28 @@ class Camera:
 
         componente_difusa = np.zeros(3)
         componente_especular = np.zeros(3)
+        componente_reflexao = np.zeros(3)
 
         for i in range(len(I_l)):
             componente_difusa += k_d * I_l[i] * np.maximum(0, np.dot(N, L[i]))
             componente_especular += I_l[i] * k_s * np.maximum(0, np.dot(R[i], V) ** n)
+
+        if contador_r <= lim_r:
+            vetor_refletido =normalize(2 * np.dot(N, vetor_camera) * N - vetor_camera)
+            var = self.intersect(vetor_atual=vetor_refletido, objects=objects, contador_r=contador_r + 1, posicao=ponto_intersecao)
+            componente_reflexao = k_r * var
         
         # Phong
-        cor_final = componente_ambiente + componente_difusa + componente_especular
+        cor_final = componente_ambiente + componente_difusa + componente_especular + componente_reflexao
         return np.clip(cor_final * (O_d/255), 0, 255)
 
-    def intersect(self, vetor_atual, objects):
+    def intersect(self, vetor_atual, objects, contador_r = 0, posicao = None):
+        if posicao is None:
+            posicao = self.posicao
         menor_t = 1000000
-        cor = [0, 0, 0]
+        cor = np.array([0, 0, 0])
         for obj in objects:
-            array_pontos_luz = np.array([np.array([0, 0, 2])])  # Fontes de luz
+            array_pontos_luz = np.array([np.array([0, 0, 0])])  # Fontes de luz
             # Parâmetros da equação de Phong
             cor_luz_ambiente = np.array([255,255,255])
             I_l = [np.array([255, 255, 255])]
@@ -88,7 +108,7 @@ class Camera:
 
             # Atualizar a cor do pixel se a interseção for menor que a menor encontrada até agora
             if obj.tipo == "Esfera":
-                inter_esfera = obj.intersecao_esfera_reta(vetor_atual, self.posicao)
+                inter_esfera = obj.intersecao_esfera_reta(vetor_atual, posicao)
                 if inter_esfera.intersecao:
                     if inter_esfera.t <= menor_t and inter_esfera.t >= 0.01:
                         # Cálculo do vetor normal do ponto:
@@ -98,7 +118,7 @@ class Camera:
                         for i in range(len(array_pontos_luz)):
                             vetor_luz = normalize(array_pontos_luz[i] - inter_esfera.ponto_intersecao)
                             array_vetores_luz.append(vetor_luz)
-                            vetor_refletido = 2 * np.dot(vetor_normal, vetor_luz) * vetor_normal - vetor_luz
+                            vetor_refletido = normalize(2 * np.dot(vetor_normal, vetor_luz) * vetor_normal - vetor_luz)
                             R_array.append(vetor_refletido)
 
                         # Calcular a cor do pixel usando a equação de Phong
@@ -113,12 +133,17 @@ class Camera:
                                 k_s=obj.k_especular,
                                 R=R_array,
                                 V=normalize(np.array([0,0,0]) - inter_esfera.ponto_intersecao),
-                                n=obj.n
+                                n=obj.n,
+                                lim_r=3,
+                                k_r=obj.k_reflexao,
+                                vetor_camera=normalize(vetor_atual),
+                                objects=objects,
+                                ponto_intersecao=inter_esfera.ponto_intersecao
                                 )
                         cor = cor_final
                         menor_t = inter_esfera.t
             elif obj.tipo == "Plano":
-                inter_plano = obj.intersecao_plano_reta(vetor_atual, self.posicao)
+                inter_plano = obj.intersecao_plano_reta(vetor_atual, posicao)
                 if inter_plano.intersecao:
                     if inter_plano.t <= menor_t and inter_plano.t >= 0.01:
                         # Cálculo do vetor normal do ponto:
@@ -128,7 +153,7 @@ class Camera:
                         for i in range(len(array_pontos_luz)):
                             vetor_luz = normalize(array_pontos_luz[i] - inter_plano.ponto_intersecao)
                             array_vetores_luz.append(vetor_luz)
-                            vetor_refletido = 2 * np.dot(vetor_normal, vetor_luz) * vetor_normal - vetor_luz
+                            vetor_refletido = normalize(2 * np.dot(vetor_normal, vetor_luz) * vetor_normal - vetor_luz)
                             R_array.append(vetor_refletido)
 
                         # Calcular a cor do pixel usando a equação de Phong
@@ -148,7 +173,7 @@ class Camera:
                         cor = cor_final
                         menor_t = inter_plano.t
             elif obj.tipo == "Malha":
-                inter_malha = obj.intersecao_reta_malha(vetor_atual, self.posicao)
+                inter_malha = obj.intersecao_reta_malha(vetor_atual, posicao)
                 if inter_malha.intersecao:
                     if inter_malha.t <= menor_t and inter_malha.t >= 0.01:
                         # Cálculo do vetor normal do ponto:
