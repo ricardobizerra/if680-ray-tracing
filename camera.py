@@ -66,24 +66,21 @@ class Camera:
         componente_especular = np.zeros(3)
 
         for i in range(len(I_l)):
-            componente_difusa += k_d * np.array(O_d) * np.array(I_l[i]) * np.maximum(0, np.dot(N, L[i]))
-            componente_especular += np.array(I_l[i]) * k_s * np.maximum(0, np.dot(R[i], V)) ** n
+            componente_difusa += k_d * I_l[i] * np.maximum(0, np.dot(N, L[i]))
+            componente_especular += I_l[i] * k_s * np.maximum(0, np.dot(R[i], V) ** n)
         
         # Phong
         cor_final = componente_ambiente + componente_difusa + componente_especular
-
-        # Tratando cor final para cada componente ser menor ou igual a 255
-        cor_final = np.clip(cor_final, 0, 255)
-        return cor_final
+        return np.clip(cor_final * (O_d/255), 0, 255)
 
     def intersect(self, vetor_atual, objects):
         menor_t = 1000000
         cor = [0, 0, 0]
         for obj in objects:
-            array_pontos_luz = np.array([np.array([0, 2, -2])])  # Fontes de luz
+            array_pontos_luz = np.array([np.array([0, 0, 2])])  # Fontes de luz
             # Parâmetros da equação de Phong
             cor_luz_ambiente = np.array([255,255,255])
-            I_l = np.array([np.array([255, 245, 0])])
+            I_l = [np.array([255, 255, 255])]
             
             R_array = [] # Inicializando R
             array_vetores_luz = [] # Inicializando array de vetores para luz
@@ -115,7 +112,7 @@ class Camera:
                                 L=array_vetores_luz,
                                 k_s=obj.k_especular,
                                 R=R_array,
-                                V=normalize(vetor_atual),
+                                V=normalize(np.array([0,0,0]) - inter_esfera.ponto_intersecao),
                                 n=obj.n
                                 )
                         cor = cor_final
@@ -145,7 +142,7 @@ class Camera:
                                 L=array_vetores_luz,
                                 k_s=obj.k_especular,
                                 R=R_array,
-                                V=normalize(vetor_atual),
+                                V=normalize(np.array([0,0,0]) - inter_plano.ponto_intersecao),
                                 n=obj.n
                                 )
                         cor = cor_final
