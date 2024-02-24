@@ -51,7 +51,7 @@ def main():
                   [n1,n2,n3,n4],
                   [],
                   [[255,255,255], [255,0,0], [0,255,0], [0,0,255]],
-                  [0,255,255],
+                  np.array([0,255,255]),
                   k_ambiente=0.1, k_difuso=0.5, k_especular=0.5, n=5)
     objects = [esfera1, esfera2]
     # Realização do raycasting com os parâmetros fornecidos
