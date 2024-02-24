@@ -4,7 +4,7 @@ import numpy as np
 
 
 class Plano:
-    def __init__(self, vetor_normal, Ponto, cor, k_ambiente, k_difuso, k_especular, n):
+    def __init__(self, vetor_normal, Ponto, cor, k_ambiente, k_difuso, k_especular, k_reflexao, n):
         self.vetor_normal = vetor_normal
         self.ponto = Ponto
         self.tipo = "Plano"
@@ -12,6 +12,7 @@ class Plano:
         self.k_ambiente = k_ambiente
         self.k_difuso = k_difuso
         self.k_especular = k_especular
+        self.k_reflexao = k_reflexao
         self.n = n
 
     def intersecao_plano_reta(self, vdiretor, P):
@@ -65,9 +66,9 @@ class Esfera:
             bhaskara_lower = 2 * a
             t = bhaskara_upper / bhaskara_lower
             t2 = bhaskara_upper2 / bhaskara_lower
-            if t<=0:
+            if t<=0.01:
                 t = 10000
-            if t2<=0:
+            if t2<=0.01:
                 t2 = 10000
             if t==10000 and t2==10000:
                 return Esfera.Intersecao_Return(False, 1000000, np.array([0, 0, 0]))

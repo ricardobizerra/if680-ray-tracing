@@ -72,6 +72,8 @@ class Camera:
         Returns:
             cor_final (da forma [255, 255, 255]) = conjunto RGB que representa a cor final do pixel em questão. Cada componente de I tem que ser menor ou igual a 255 
         """
+        #if contador_r > 0:
+            #print('c')
         componente_ambiente = k_a * I_a
 
         componente_difusa = np.zeros(3)
@@ -85,11 +87,18 @@ class Camera:
         if contador_r <= lim_r:
             vetor_refletido =normalize(2 * np.dot(N, vetor_camera) * N - vetor_camera)
             var = self.intersect(vetor_atual=vetor_refletido, objects=objects, contador_r=contador_r + 1, posicao=ponto_intersecao)
+            #if var[0] == 0 and var[1] == 0 and var[2] == 0:
+            #    print('a')
+            
             componente_reflexao = k_r * var
-        
+            #print(var)
         # Phong
-        cor_final = componente_ambiente + componente_difusa + componente_especular + componente_reflexao
-        return np.clip(cor_final * (O_d/255), 0, 255)
+        cor_final = componente_ambiente + componente_difusa + componente_especular
+        #if cor_final[0] == cor_final[1] == cor_final[2]:
+        #    print('b')
+        cor_final1 = np.clip(cor_final * O_d/255, 0, 255)
+        cor_final = np.clip(cor_final * (O_d + componente_reflexao) / 255, 0, 255)
+        return cor_final
 
     def intersect(self, vetor_atual, objects, contador_r = 0, posicao = None):
         if posicao is None:
@@ -134,11 +143,12 @@ class Camera:
                                 R=R_array,
                                 V=normalize(np.array([0,0,0]) - inter_esfera.ponto_intersecao),
                                 n=obj.n,
-                                lim_r=3,
+                                lim_r=0,
                                 k_r=obj.k_reflexao,
                                 vetor_camera=normalize(vetor_atual),
                                 objects=objects,
-                                ponto_intersecao=inter_esfera.ponto_intersecao
+                                ponto_intersecao=inter_esfera.ponto_intersecao,
+                                contador_r=contador_r
                                 )
                         cor = cor_final
                         menor_t = inter_esfera.t
@@ -168,7 +178,13 @@ class Camera:
                                 k_s=obj.k_especular,
                                 R=R_array,
                                 V=normalize(np.array([0,0,0]) - inter_plano.ponto_intersecao),
-                                n=obj.n
+                                n=obj.n,
+                                lim_r=3,
+                                k_r=obj.k_reflexao,
+                                vetor_camera=normalize(vetor_atual),
+                                objects=objects,
+                                ponto_intersecao=inter_plano.ponto_intersecao,
+                                contador_r=contador_r
                                 )
                         cor = cor_final
                         menor_t = inter_plano.t
