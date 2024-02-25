@@ -169,6 +169,7 @@ class Camera:
 
                         # Calcular a cor do pixel usando a equação de Phong
                         cor_final = self.phong(
+                                current_obj=obj,
                                 k_a=obj.k_ambiente,
                                 I_a=cor_luz_ambiente,
                                 I_l=I_l,
@@ -206,6 +207,7 @@ class Camera:
 
                         # Calcular a cor do pixel usando a equação de Phong
                         cor_final = self.phong(
+                                current_obj=obj,
                                 k_a=obj.k_ambiente,
                                 I_a=cor_luz_ambiente,
                                 I_l=I_l,
