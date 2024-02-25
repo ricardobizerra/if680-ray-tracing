@@ -148,7 +148,7 @@ class Camera:
                                 L=array_vetores_luz,
                                 k_s=obj.k_especular,
                                 R=R_array,
-                                V=normalize(np.array([0,0,0]) - inter_esfera.ponto_intersecao),
+                                V=normalize(posicao - inter_esfera.ponto_intersecao),
                                 n=obj.n,
                                 lim_r=3,
                                 k_r=obj.k_reflexao,
@@ -185,7 +185,7 @@ class Camera:
                                 L=array_vetores_luz,
                                 k_s=obj.k_especular,
                                 R=R_array,
-                                V=normalize(np.array([0,0,0]) - inter_plano.ponto_intersecao),
+                                V=normalize(posicao - inter_plano.ponto_intersecao),
                                 n=obj.n,
                                 lim_r=3,
                                 k_r=obj.k_reflexao,
@@ -194,7 +194,6 @@ class Camera:
                                 ponto_intersecao=inter_plano.ponto_intersecao,
                                 contador_r=contador_r
                                 )
-                        print(cor_final, contador_r)
                         cor = cor_final
                         menor_t = inter_plano.t
             elif obj.tipo == "Malha":
