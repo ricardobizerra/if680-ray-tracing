@@ -4,7 +4,7 @@ import numpy as np
 
 
 class Plano:
-    def __init__(self, vetor_normal, Ponto, cor, k_ambiente, k_difuso, k_especular, k_reflexao, n):
+    def __init__(self, vetor_normal, Ponto, cor, k_ambiente, k_difuso, k_especular, k_reflexao, k_refracao, ind_refracao, n):
         self.vetor_normal = vetor_normal
         self.ponto = Ponto
         self.tipo = "Plano"
@@ -13,6 +13,8 @@ class Plano:
         self.k_difuso = k_difuso
         self.k_especular = k_especular
         self.k_reflexao = k_reflexao
+        self.k_refracao = k_refracao
+        self.IOR = ind_refracao
         self.n = n
 
     def intersecao_plano_reta(self, vdiretor, P):
@@ -36,7 +38,7 @@ class Plano:
         return Plano.Intersecao_Return(True, t, np.array([x, y, z]))
 
 class Esfera:
-    def __init__(self, centro, raio, cor, k_ambiente, k_difuso, k_especular, k_reflexao, n):
+    def __init__(self, centro, raio, cor, k_ambiente, k_difuso, k_especular, k_reflexao, k_refracao, ind_refracao, n):
         self.centro = centro
         self.raio = raio
         self.tipo = "Esfera"
@@ -45,6 +47,8 @@ class Esfera:
         self.k_difuso = k_difuso
         self.k_especular = k_especular
         self.k_reflexao = k_reflexao
+        self.k_refracao = k_refracao
+        self.IOR = ind_refracao
         self.n = n
 
     class Intersecao_Return:

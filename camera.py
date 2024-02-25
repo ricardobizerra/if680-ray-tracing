@@ -25,7 +25,24 @@ class Camera:
         self.UP = np.cross(self.W, self.U) * -1
         self.UP = normalize(self.UP)
     
-    def phong(self, k_a, I_a, I_l, k_d, O_d, N, L, k_s, R, V, n, lim_r, k_r, vetor_camera, objects, ponto_intersecao, current_obj, contador_r = 0):
+    # Função adaptada para retornar o cosseno do ângulo de refração
+    def calcular_cosseno_teta_t(self, n_in, n_out, cos_theta_in):
+        # Calcular o seno do ângulo de incidência usando a identidade trigonométrica sin^2(theta) + cos^2(theta) = 1
+        sin_theta_in = np.sqrt(1 - cos_theta_in**2)
+    
+        # Aplicar a lei de Snell para calcular o seno do ângulo de refração
+        sin_theta_t = (n_in / n_out) * sin_theta_in
+    
+        # Verificar se a refração é possível (senão ocorre reflexão total interna)
+        if sin_theta_t > 1:
+            return "Reflexão total interna"
+    
+        # Calcular o cosseno do ângulo de refração usando a identidade trigonométrica
+        cos_theta_t = np.sqrt(1 - sin_theta_t**2)
+    
+        return cos_theta_t
+    
+    def phong(self, k_a, I_a, I_l, k_d, O_d, N, L, k_s, R, V, n, lim_r, k_r, vetor_camera, objects, ponto_intersecao, current_obj, k_t, n_in, n_out, reflexao = True, refracao = True, contador_r = 0):
         """ Calcula a cor final de um pixel segundo a equação de phong
             Phong:
                 componente_ambiente = k_a * I_a
@@ -69,6 +86,12 @@ class Camera:
 
             current_obj (esfera, plano ou triangulo) = diz respeito ao objeto atual resultado da interseção
 
+            k_t (entre 0 e 1) = coeficiente de refração do objeto
+
+            n_in (>= 0) = valor do índice de refração na entrada da superfície (indo do ar pro objeto ou do objeto pro ar)
+
+            n_out (>= 1) = valor do índice de refração na saída da superfície (indo do ar pro objeto ou do objeto pro ar)
+
             contador_r (int) = incrementa em um a cada chamada recursiva de phong
 
         Returns:
@@ -81,28 +104,38 @@ class Camera:
         componente_difusa = np.zeros(3)
         componente_especular = np.zeros(3)
         componente_reflexao = np.zeros(3)
+        componente_refracao = np.zeros(3)
 
-        for i in range(len(I_l)):
-            componente_difusa += k_d * I_l[i] * np.maximum(0, np.dot(N, L[i]))
-            componente_especular += I_l[i] * k_s * np.maximum(0, np.dot(R[i], V) ** n)
+        #for i in range(len(I_l)):
+            #componente_difusa += k_d * I_l[i] * np.maximum(0, np.dot(N, L[i]))
+            #componente_especular += I_l[i] * k_s * np.maximum(0, np.dot(R[i], V) ** n)
 
         if contador_r <= lim_r:
-            vetor_refletido = normalize(2 * np.dot(N, vetor_camera) * N - vetor_camera)
-            vetor_refletido = vetor_refletido * -1
-            i_r = self.intersect(vetor_atual=vetor_refletido, objects=objects, contador_r=contador_r + 1, posicao=ponto_intersecao, exclude_obj=current_obj)
-            #if i_r[0] == 0 and i_r[1] == 0 and i_r[2] == 0:
-            #    print('a')
-            
-            componente_reflexao = k_r * i_r
-            #print(i_r)
+            if reflexao:
+                vetor_refletido = normalize(2 * np.dot(N, vetor_camera) * N - vetor_camera)
+                vetor_refletido = vetor_refletido * -1
+                i_r = self.intersect(vetor_atual=vetor_refletido, objects=objects, contador_r=contador_r + 1, posicao=ponto_intersecao, exclude_obj=None, reflexao=True, refracao=False)
+                componente_reflexao = k_r * i_r
+            if refracao:
+                snel = n_in / n_out
+                cos_teta = np.dot(N, vetor_camera)
+                cos_teta_t = self.calcular_cosseno_teta_t(n_in, n_out, cos_teta)
+                if type(cos_teta_t) != str:
+                    if n_in != 1:
+                        print('b')
+                    vetor_refratado = normalize((1/snel) * vetor_camera - ((cos_teta_t - (1 / snel) * cos_teta) * N))
+                    #vetor_refratado = vetor_refratado * -1
+                    i_t = self.intersect(vetor_atual=vetor_refratado, objects=objects, contador_r=contador_r + 1, posicao=ponto_intersecao, n_in=n_out, exclude_obj=None, reflexao=False, refracao=True)
+                    componente_refracao = k_t * i_t
+
         # Phong
-        cor_final = componente_ambiente + componente_difusa + componente_especular + componente_reflexao
+        cor_final = componente_ambiente + componente_difusa + componente_especular + componente_reflexao + componente_refracao
         #if cor_final[0] == cor_final[1] == cor_final[2]:
         #    print('b')
         cor_final = np.clip(cor_final * O_d/255, 0, 255)
         return cor_final
 
-    def intersect(self, vetor_atual, objects, contador_r = 0, posicao = None, exclude_obj = None):
+    def intersect(self, vetor_atual, objects, contador_r = 0, posicao = None, exclude_obj = None, n_in = 1, reflexao = True, refracao = True):
         if posicao is None:
             posicao = self.posicao
         menor_t = 1000000
@@ -119,6 +152,11 @@ class Camera:
             if exclude_obj is not None:
                 if obj == exclude_obj:
                     continue
+            
+            if n_in == 1:
+                n_out = obj.IOR
+            else:
+                n_out = 1
 
 
             # Atualizar a cor do pixel se a interseção for menor que a menor encontrada até agora
@@ -128,6 +166,9 @@ class Camera:
                     if inter_esfera.t <= menor_t and inter_esfera.t >= 0.01:
                         # Cálculo do vetor normal do ponto:
                         vetor_normal = normalize(inter_esfera.ponto_intersecao - obj.centro)
+
+                        if n_in != 1:
+                            print('a')
 
                         # Definindo e normalizando vetores dos arrays:
                         for i in range(len(array_pontos_luz)):
@@ -155,7 +196,12 @@ class Camera:
                                 vetor_camera=normalize(vetor_atual),
                                 objects=objects,
                                 ponto_intersecao=inter_esfera.ponto_intersecao,
-                                contador_r=contador_r
+                                contador_r=contador_r,
+                                k_t=obj.k_refracao,
+                                reflexao=reflexao,
+                                refracao=refracao,
+                                n_in=n_in,
+                                n_out= n_out
                                 )
                         cor = cor_final
                         menor_t = inter_esfera.t
@@ -192,7 +238,12 @@ class Camera:
                                 vetor_camera=normalize(vetor_atual),
                                 objects=objects,
                                 ponto_intersecao=inter_plano.ponto_intersecao,
-                                contador_r=contador_r
+                                contador_r=contador_r,
+                                k_t=obj.k_refracao,
+                                reflexao=reflexao,
+                                refracao=refracao,
+                                n_in=n_in,
+                                n_out= n_out
                                 )
                         cor = cor_final
                         menor_t = inter_plano.t
