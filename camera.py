@@ -67,6 +67,8 @@ class Camera:
 
             ponto_intersecao (da forma [1,0,0]) = ponto onde ocorreu a interseção e foi chamado phong
 
+            current_obj (esfera, plano ou triangulo) = diz respeito ao objeto atual resultado da interseção
+
             contador_r (int) = incrementa em um a cada chamada recursiva de phong
 
         Returns:
@@ -87,7 +89,7 @@ class Camera:
         if contador_r <= lim_r:
             vetor_refletido = normalize(2 * np.dot(N, vetor_camera) * N - vetor_camera)
             vetor_refletido = vetor_refletido * -1
-            i_r = self.intersect(vetor_atual=vetor_refletido, objects=[obj for obj in objects if obj != current_obj], contador_r=contador_r + 1, posicao=ponto_intersecao)
+            i_r = self.intersect(vetor_atual=vetor_refletido, objects=objects, contador_r=contador_r + 1, posicao=ponto_intersecao, exclude_obj=current_obj)
             #if i_r[0] == 0 and i_r[1] == 0 and i_r[2] == 0:
             #    print('a')
             
@@ -100,7 +102,7 @@ class Camera:
         cor_final = np.clip(cor_final * O_d/255, 0, 255)
         return cor_final
 
-    def intersect(self, vetor_atual, objects, contador_r = 0, posicao = None):
+    def intersect(self, vetor_atual, objects, contador_r = 0, posicao = None, exclude_obj = None):
         if posicao is None:
             posicao = self.posicao
         menor_t = 1000000
@@ -113,6 +115,10 @@ class Camera:
             
             R_array = [] # Inicializando R
             array_vetores_luz = [] # Inicializando array de vetores para luz
+
+            if exclude_obj is not None:
+                if obj == exclude_obj:
+                    continue
 
 
             # Atualizar a cor do pixel se a interseção for menor que a menor encontrada até agora
@@ -144,7 +150,7 @@ class Camera:
                                 R=R_array,
                                 V=normalize(np.array([0,0,0]) - inter_esfera.ponto_intersecao),
                                 n=obj.n,
-                                lim_r=0,
+                                lim_r=3,
                                 k_r=obj.k_reflexao,
                                 vetor_camera=normalize(vetor_atual),
                                 objects=objects,
