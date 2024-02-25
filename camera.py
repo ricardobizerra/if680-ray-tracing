@@ -106,9 +106,9 @@ class Camera:
         componente_reflexao = np.zeros(3)
         componente_refracao = np.zeros(3)
 
-        #for i in range(len(I_l)):
-            #componente_difusa += k_d * I_l[i] * np.maximum(0, np.dot(N, L[i]))
-            #componente_especular += I_l[i] * k_s * np.maximum(0, np.dot(R[i], V) ** n)
+        for i in range(len(I_l)):
+            componente_difusa += k_d * I_l[i] * np.maximum(0, np.dot(N, L[i]))
+            componente_especular += I_l[i] * k_s * np.maximum(0, np.dot(R[i], V) ** n)
 
         if contador_r <= lim_r:
             if reflexao:
@@ -277,9 +277,14 @@ class Camera:
                                 n=obj.n,
                                 lim_r=3,
                                 k_r=obj.k_reflexao,
-                                vetor_camera=normalize(vetor_atual),
+                                vetor_camera=normalize(posicao - inter_malha.ponto_intersecao),
                                 objects=objects,
                                 ponto_intersecao=inter_malha.ponto_intersecao,
+                                refracao=refracao,
+                                n_in=n_in,
+                                n_out= n_out,
+                                reflexao=reflexao,
+                                k_t=obj.k_refracao,
                                 )
                         cor = cor_final
                         menor_t = inter_malha.t
