@@ -116,7 +116,7 @@ class Camera:
                 vetor_refletido = vetor_refletido * -1
                 i_r = self.intersect(vetor_atual=vetor_refletido, objects=objects, contador_r=contador_r + 1, posicao=ponto_intersecao, exclude_obj=None, reflexao=True, refracao=False)
                 componente_reflexao = k_r * i_r
-            if refracao:
+            if refracao and k_t != 0:
                 snel = n_in / n_out
                 cos_teta = np.dot(N, vetor_camera)
                 cos_teta_t = self.calcular_cosseno_teta_t(n_in, n_out, cos_teta)
@@ -211,6 +211,9 @@ class Camera:
                     if inter_plano.t <= menor_t and inter_plano.t >= 0.01:
                         # Cálculo do vetor normal do ponto:
                         vetor_normal = obj.vetor_normal
+                        cos = np.dot(vetor_normal, vetor_atual)
+                        if cos > 0:
+                            vetor_normal = vetor_normal * -1
 
                         # Definindo e normalizando vetores dos arrays:
                         for i in range(len(array_pontos_luz)):
@@ -253,12 +256,15 @@ class Camera:
                     if inter_malha.t <= menor_t and inter_malha.t >= 0.01:
                         # Cálculo do vetor normal do ponto:
                         vetor_normal = inter_malha.normal_ponto
+                        cos = np.dot(vetor_normal, vetor_atual)
+                        if cos > 0:
+                            vetor_normal = vetor_normal * -1
 
                         # Definindo e normalizando vetores dos arrays:
                         for i in range(len(array_pontos_luz)):
                             vetor_luz = normalize(array_pontos_luz[i] - inter_malha.ponto_intersecao)
                             array_vetores_luz.append(vetor_luz)
-                            vetor_refletido = 2 * np.dot(vetor_normal, vetor_luz) * vetor_normal - vetor_luz
+                            vetor_refletido = normalize(2 * np.dot(vetor_normal, vetor_luz) * vetor_normal - vetor_luz)
                             R_array.append(vetor_refletido)
 
                         # Calcular a cor do pixel usando a equação de Phong
