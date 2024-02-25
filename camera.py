@@ -25,7 +25,7 @@ class Camera:
         self.UP = np.cross(self.W, self.U) * -1
         self.UP = normalize(self.UP)
     
-    def phong(self, k_a, I_a, I_l, k_d, O_d, N, L, k_s, R, V, n, lim_r, k_r, vetor_camera, objects, ponto_intersecao, contador_r = 0):
+    def phong(self, k_a, I_a, I_l, k_d, O_d, N, L, k_s, R, V, n, lim_r, k_r, vetor_camera, objects, ponto_intersecao, current_obj, contador_r = 0):
         """ Calcula a cor final de um pixel segundo a equação de phong
             Phong:
                 componente_ambiente = k_a * I_a
@@ -85,19 +85,19 @@ class Camera:
             componente_especular += I_l[i] * k_s * np.maximum(0, np.dot(R[i], V) ** n)
 
         if contador_r <= lim_r:
-            vetor_refletido =normalize(2 * np.dot(N, vetor_camera) * N - vetor_camera)
-            var = self.intersect(vetor_atual=vetor_refletido, objects=objects, contador_r=contador_r + 1, posicao=ponto_intersecao)
-            #if var[0] == 0 and var[1] == 0 and var[2] == 0:
+            vetor_refletido = normalize(2 * np.dot(N, vetor_camera) * N - vetor_camera)
+            vetor_refletido = vetor_refletido * -1
+            i_r = self.intersect(vetor_atual=vetor_refletido, objects=[obj for obj in objects if obj != current_obj], contador_r=contador_r + 1, posicao=ponto_intersecao)
+            #if i_r[0] == 0 and i_r[1] == 0 and i_r[2] == 0:
             #    print('a')
             
-            componente_reflexao = k_r * var
-            #print(var)
+            componente_reflexao = k_r * i_r
+            #print(i_r)
         # Phong
-        cor_final = componente_ambiente + componente_difusa + componente_especular
+        cor_final = componente_ambiente + componente_difusa + componente_especular + componente_reflexao
         #if cor_final[0] == cor_final[1] == cor_final[2]:
         #    print('b')
-        cor_final1 = np.clip(cor_final * O_d/255, 0, 255)
-        cor_final = np.clip(cor_final * (O_d + componente_reflexao) / 255, 0, 255)
+        cor_final = np.clip(cor_final * O_d/255, 0, 255)
         return cor_final
 
     def intersect(self, vetor_atual, objects, contador_r = 0, posicao = None):
@@ -132,6 +132,7 @@ class Camera:
 
                         # Calcular a cor do pixel usando a equação de Phong
                         cor_final = self.phong(
+                                current_obj=obj,
                                 k_a=obj.k_ambiente,
                                 I_a=cor_luz_ambiente,
                                 I_l=I_l,
@@ -186,6 +187,7 @@ class Camera:
                                 ponto_intersecao=inter_plano.ponto_intersecao,
                                 contador_r=contador_r
                                 )
+                        print(cor_final, contador_r)
                         cor = cor_final
                         menor_t = inter_plano.t
             elif obj.tipo == "Malha":
@@ -214,7 +216,12 @@ class Camera:
                                 k_s=obj.k_especular,
                                 R=R_array,
                                 V=normalize(vetor_atual),
-                                n=obj.n
+                                n=obj.n,
+                                lim_r=3,
+                                k_r=obj.k_reflexao,
+                                vetor_camera=normalize(vetor_atual),
+                                objects=objects,
+                                ponto_intersecao=inter_malha.ponto_intersecao,
                                 )
                         cor = cor_final
                         menor_t = inter_malha.t

@@ -82,7 +82,7 @@ class Esfera:
 
 class Malha:
     def __init__(self, n_triangulos, n_vertices, lista_vertices, triplas, lista_normais, lista_normais_vertices, lista_cores_normalizadas, cor,
-                 k_ambiente, k_difuso, k_especular, n):
+                 k_ambiente, k_difuso, k_especular, n, k_reflexao):
         self.n_triangulos = n_triangulos
         self.n_vertices = n_vertices
         self.tipo = "Malha"
@@ -96,6 +96,7 @@ class Malha:
         self.k_difuso = k_difuso
         self.k_especular = k_especular
         self.n = n
+        self.k_reflexao = k_reflexao
 
     def intersecao_reta_malha(self, vdiretor, P):
         menor_t = self.Intersecao_Return(False, 1000000, np.array([0, 0, 0]), self.lista_cores_normalizadas[0], None)

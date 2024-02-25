@@ -22,11 +22,11 @@ def main():
     esfera2 = Esfera(np.array([2,0,1]), 1/2, np.array([200,50,200]), k_ambiente=0.3, k_difuso=0.5, k_especular=0.5, k_reflexao=0.5, n=500)
     esfera3 = Esfera(np.array([2, 0 ,0]), 1/2, np.array([255, 0, 0]), k_ambiente=0.3, k_difuso=0.8, k_especular=0.8, k_reflexao=0.5, n=500)
     plano = Plano(np.array([-1, 0, 0]), np.array([4, 2, 0]), np.array([0, 255, 0]), k_ambiente=0.3, k_difuso=0.5, k_especular=0, k_reflexao=0.5, n=500)  # Ponto e vetor normal ao plano definidos como 0
-    p0 = np.array([100, 0, 0])
-    p1 = np.array([0, 100, 0])
-    p2 = np.array([-100, 0, 0])
-    p3 = np.array([0, -100, 0])
-    p4 = np.array([0, 0, 100])
+    p0 = np.array([1, 0, 0])
+    p1 = np.array([0, 1, 0])
+    p2 = np.array([-1, 0, 0])
+    p3 = np.array([0, -1, 0])
+    p4 = np.array([0, 0, 1])
 
     n1 = np.cross(p1 - p0, p4 - p0)
     norma1 = np.linalg.norm(n1)
@@ -52,8 +52,8 @@ def main():
                   [],
                   [[255,255,255], [255,0,0], [0,255,0], [0,0,255]],
                   np.array([0,255,255]),
-                  k_ambiente=0.1, k_difuso=0.5, k_especular=0.5, n=5)
-    objects = [esfera1, esfera2]
+                  k_ambiente=0.1, k_difuso=0.5, k_especular=0.5, n=5, k_reflexao=0.5)
+    objects = [esfera1, esfera2, esfera3]
     # Realização do raycasting com os parâmetros fornecidos
     cam.raycasting(1, 500, 500, objects)
 
