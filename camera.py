@@ -2,6 +2,7 @@ from vectors import Ponto, Vector, produto_escalar, produto_vetorial, multiplica
 from objects import Plano, Esfera, Malha
 import cv2 as cv
 import numpy as np
+import math
 
 def normalize(vector):
     return vector / np.linalg.norm(vector)
@@ -117,22 +118,29 @@ class Camera:
                 i_r = self.intersect(vetor_atual=vetor_refletido, objects=objects, contador_r=contador_r + 1, posicao=ponto_intersecao, exclude_obj=None, reflexao=True, refracao=False)
                 componente_reflexao = k_r * i_r
             if refracao and k_t != 0:
-                snel = n_in / n_out
-                cos_teta = np.dot(N, vetor_camera)
-                cos_teta_t = self.calcular_cosseno_teta_t(n_in, n_out, cos_teta)
-                if type(cos_teta_t) != str:
-                    if n_in != 1:
-                        print('b')
-                    vetor_refratado = normalize((1/snel) * vetor_camera - ((cos_teta_t - (1 / snel) * cos_teta) * N))
-                    #vetor_refratado = vetor_refratado * -1
-                    i_t = self.intersect(vetor_atual=vetor_refratado, objects=objects, contador_r=contador_r + 1, posicao=ponto_intersecao, n_in=n_out, exclude_obj=None, reflexao=False, refracao=True)
+                cos = np.dot(V, N)
+                normal = N
+                ior = current_obj.IOR
+                if cos < 0:
+                    normal = -1 * normal
+                    ior = 1 / ior
+                    cos = -1 * cos
+                
+                delta = 1 - (1 - cos * cos) / (ior * ior)
+                if delta >= 0:
+                    vetor_refratado = V / (-ior) - normal * (math.sqrt(delta) - cos/ior)
+                    #if contador_r == 1:
+                    #    print('b')
+                    i_t = self.intersect(vetor_atual=vetor_refratado, objects=objects,contador_r=contador_r + 1, posicao = ponto_intersecao, exclude_obj=None,n_in = n_out, reflexao= False, refracao=True)
                     componente_refracao = k_t * i_t
+                
+
 
         # Phong
-        cor_final = componente_ambiente + componente_difusa + componente_especular + componente_reflexao + componente_refracao
+        cor_final = componente_ambiente + componente_difusa + componente_especular
         #if cor_final[0] == cor_final[1] == cor_final[2]:
         #    print('b')
-        cor_final = np.clip(cor_final * O_d/255, 0, 255)
+        cor_final = np.clip(cor_final * O_d/255 + componente_refracao + componente_reflexao, 0, 255)
         return cor_final
 
     def intersect(self, vetor_atual, objects, contador_r = 0, posicao = None, exclude_obj = None, n_in = 1, reflexao = True, refracao = True):
@@ -167,8 +175,8 @@ class Camera:
                         # Cálculo do vetor normal do ponto:
                         vetor_normal = normalize(inter_esfera.ponto_intersecao - obj.centro)
 
-                        if n_in != 1:
-                            print('a')
+                        #if n_in != 1:
+                        #    print('a')
 
                         # Definindo e normalizando vetores dos arrays:
                         for i in range(len(array_pontos_luz)):
