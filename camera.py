@@ -112,7 +112,7 @@ class Camera:
             componente_especular += I_l[i] * k_s * np.maximum(0, np.dot(R[i], V) ** n)
 
         if contador_r <= lim_r:
-            if reflexao:
+            if reflexao and k_r != 0:
                 vetor_refletido = normalize(2 * np.dot(N, vetor_camera) * N - vetor_camera)
                 vetor_refletido = vetor_refletido * -1
                 i_r = self.intersect(vetor_atual=vetor_refletido, objects=objects, contador_r=contador_r + 1, posicao=ponto_intersecao, exclude_obj=None, reflexao=True, refracao=False)
@@ -149,7 +149,7 @@ class Camera:
         menor_t = 1000000
         cor = np.array([0, 0, 0])
         for obj in objects:
-            array_pontos_luz = np.array([np.array([0, 0, 0])])  # Fontes de luz
+            array_pontos_luz = np.array([np.array([0,0,0])])  # Fontes de luz
             # Parâmetros da equação de Phong
             cor_luz_ambiente = np.array([255,255,255])
             I_l = [np.array([255, 255, 255])]

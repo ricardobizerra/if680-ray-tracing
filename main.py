@@ -8,7 +8,8 @@ import math
 def main():
     # Definição dos valores para a câmera, alvo, up, centro da esfera, ponto do plano e normal ao plano   
     # Criação dos objetos Ponto e Vector com base nos valores fornecidos
-    camera_ponto =  np.array([0,0,0])
+    camera_ponto1 =  np.array([-2,2,1])
+    camera_ponto2 = np.array([0,0,0])
     alvo_ponto = np.array([1, 0, 0])
     up_vector = np.array([0,0,1])
    
@@ -17,8 +18,9 @@ def main():
     # up_vector = affine_transform(up_vector, 'rotate_x', angle=math.pi/2)
 
     # Inicialização dos objetos Camera, Esfera e Plano com base nos dados inseridos
-    cam = Camera(camera_ponto, alvo_ponto, up_vector)
+    cam = Camera(camera_ponto2, alvo_ponto, up_vector)
     esfera1 = Esfera(np.array([2,0,-1]), 1/2, np.array([255,255,0]), k_ambiente=0.3, k_difuso=0.5, k_especular=0.5, k_reflexao= 0.8, k_refracao=0.8, ind_refracao=1.52, n=500)  # Raio da esfera definido como 1
+    esfera2 = Esfera(np.array([2,0,1]), 1/2, np.array([200,50,200]), k_ambiente=0.3, k_difuso=0.5, k_especular=0.5, k_reflexao=0.8, k_refracao=0.8, ind_refracao=1.52, n=500)
     esfera2 = Esfera(np.array([2,0,1]), 1/2, np.array([200,50,200]), k_ambiente=0.3, k_difuso=0.5, k_especular=0.5, k_reflexao=0.8, k_refracao=0.8, ind_refracao=1.52, n=500)
     esfera3 = Esfera(np.array([2, 0 ,0]), 1/2, np.array([0, 255, 255]), k_ambiente=0.3, k_difuso=0.8, k_especular=0.8, k_reflexao=0.5, k_refracao=0, ind_refracao=1.52, n=500)
     esfera4 = Esfera(np.array([2, 0 ,0]), 1/2, np.array([0, 0, 0]), k_ambiente=0.3, k_difuso=0.3, k_especular=0.3, k_reflexao=0.1, k_refracao=0.3, ind_refracao=1.52, n=500)
@@ -55,7 +57,7 @@ def main():
                   [[255,255,255], [255,0,0], [0,255,0], [0,0,255]],
                   np.array([0,255,255]),
                   k_ambiente=0.3, k_difuso=0.5, k_especular=0.5, n=500, k_reflexao=0.8,ind_refracao=1.52, k_refracao=0.5)
-    objects = [esfera4, plano2]
+    objects = [esfera1,esfera2,esfera3]
     # Realização do raycasting com os parâmetros fornecidos
     cam.raycasting(1, 500, 500, objects)
 
