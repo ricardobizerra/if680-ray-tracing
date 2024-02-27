@@ -8,23 +8,29 @@ import math
 def main():
     # Definição dos valores para a câmera, alvo, up, centro da esfera, ponto do plano e normal ao plano   
     # Criação dos objetos Ponto e Vector com base nos valores fornecidos
-    camera_ponto =  np.array([-100, 200, 100])
-    alvo_ponto = np.array([0, 0, 0])
-    up_vector = np.array([0,1,0])
+    camera_ponto1 =  np.array([-2,2,1])
+    camera_ponto2 = np.array([0,0,0])
+    alvo_ponto = np.array([1, 0, 0])
+    up_vector = np.array([0,0,1])
    
     # Transformações afins realizadas nos objetos Ponto e Vector
     # camera_ponto = affine_transform(camera_ponto, 'translate', 2, 0, 8, 0)
     # up_vector = affine_transform(up_vector, 'rotate_x', angle=math.pi/2)
 
     # Inicialização dos objetos Camera, Esfera e Plano com base nos dados inseridos
-    cam = Camera(camera_ponto, alvo_ponto, up_vector)
-    esfera = Esfera(np.array([200, 0, 50]), 50)  # Raio da esfera definido como 1
-    plano = Plano(np.array([100,0,0]), np.array([0, 0, 1]))  # Ponto e vetor normal ao plano definidos como 0
-    p0 = np.array([100, 0, 0])
-    p1 = np.array([0, 100, 0])
-    p2 = np.array([-100, 0, 0])
-    p3 = np.array([0, -100, 0])
-    p4 = np.array([0, 0, 100])
+    cam = Camera(camera_ponto2, alvo_ponto, up_vector)
+    esfera1 = Esfera(np.array([2,0,-1]), 1/2, np.array([255,255,0]), k_ambiente=0.3, k_difuso=0.7, k_especular=0.3, k_reflexao= 0.5, k_refracao=0.2, ind_refracao=1.52, n=500)  # Raio da esfera definido como 1
+    esfera2 = Esfera(np.array([2,0,1]), 1/2, np.array([200,50,200]), k_ambiente=0.3, k_difuso=0.5, k_especular=0.5, k_reflexao=0.8, k_refracao=0.8, ind_refracao=1.52, n=500)
+    esfera5 = Esfera(np.array([2,0,1]), 1/2, np.array([200,50,200]), k_ambiente=0.3, k_difuso=0.5, k_especular=0.5, k_reflexao=0, k_refracao=0, ind_refracao=1.52, n=500)
+    esfera3 = Esfera(np.array([2, 0 ,0]), 1/2, np.array([0, 255, 255]), k_ambiente=0.3, k_difuso=0.8, k_especular=0.8, k_reflexao=0.5, k_refracao=0, ind_refracao=1.52, n=500)
+    esfera4 = Esfera(np.array([2, 0 ,0]), 1/2, np.array([0, 0, 0]), k_ambiente=0.3, k_difuso=0.3, k_especular=0.3, k_reflexao=0.1, k_refracao=1, ind_refracao=1.52, n=500)
+    plano = Plano(np.array([-1, 0, 0]), np.array([4, 2, 0]), np.array([0, 255, 0]), k_ambiente=0.3, k_difuso=0.5, k_especular=0.5, k_reflexao=0.5, ind_refracao=1.52, k_refracao=0, n=500)  # Ponto e vetor normal ao plano definidos como 0
+    plano2 = Plano(np.array([0, 1, 0]), np.array([4, 2, 0]), np.array([0, 255, 0]), k_ambiente=0.3, k_difuso=0.5, k_especular=0.5, k_reflexao=0, ind_refracao=1.52, k_refracao=0, n=500)  # Ponto e vetor normal ao plano definidos como 0
+    p0 = np.array([1, 0, 0])
+    p1 = np.array([0, 1, 0])
+    p2 = np.array([-1, 0, 0])
+    p3 = np.array([0, -1, 0])
+    p4 = np.array([0, 0, 1])
 
     n1 = np.cross(p1 - p0, p4 - p0)
     norma1 = np.linalg.norm(n1)
@@ -48,8 +54,10 @@ def main():
                   [(0,1,4),(1,2,4),(2,3,4),(0,3,4)],
                   [n1,n2,n3,n4],
                   [],
-                  [[255,255,255], [255,0,0], [0,255,0], [0,0,255]])
-    objects = [malha]
+                  [[255,255,255], [255,0,0], [0,255,0], [0,0,255]],
+                  np.array([0,255,255]),
+                  k_ambiente=0.3, k_difuso=0.5, k_especular=0.5, n=500, k_reflexao=0.8,ind_refracao=1.52, k_refracao=0.5)
+    objects = [esfera1, esfera2, esfera3]
     # Realização do raycasting com os parâmetros fornecidos
     cam.raycasting(1, 500, 500, objects)
 

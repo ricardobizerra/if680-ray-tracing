@@ -4,10 +4,18 @@ import numpy as np
 
 
 class Plano:
-    def __init__(self, v, P):
-        self.vetor_normal = v
-        self.ponto = P
+    def __init__(self, vetor_normal, Ponto, cor, k_ambiente, k_difuso, k_especular, k_reflexao, k_refracao, ind_refracao, n):
+        self.vetor_normal = vetor_normal
+        self.ponto = Ponto
         self.tipo = "Plano"
+        self.cor = cor
+        self.k_ambiente = k_ambiente
+        self.k_difuso = k_difuso
+        self.k_especular = k_especular
+        self.k_reflexao = k_reflexao
+        self.k_refracao = k_refracao
+        self.IOR = ind_refracao
+        self.n = n
 
     def intersecao_plano_reta(self, vdiretor, P):
         calculo_ponto_intersecao = self.calculo_ponto_intersecao(vdiretor, P)
@@ -30,10 +38,18 @@ class Plano:
         return Plano.Intersecao_Return(True, t, np.array([x, y, z]))
 
 class Esfera:
-    def __init__(self, P, r):
-        self.centro = P
-        self.raio = r
+    def __init__(self, centro, raio, cor, k_ambiente, k_difuso, k_especular, k_reflexao, k_refracao, ind_refracao, n):
+        self.centro = centro
+        self.raio = raio
         self.tipo = "Esfera"
+        self.cor = cor
+        self.k_ambiente = k_ambiente
+        self.k_difuso = k_difuso
+        self.k_especular = k_especular
+        self.k_reflexao = k_reflexao
+        self.k_refracao = k_refracao
+        self.IOR = ind_refracao
+        self.n = n
 
     class Intersecao_Return:
         def __init__(self, intersecao, t, ponto_intersecao):
@@ -54,9 +70,9 @@ class Esfera:
             bhaskara_lower = 2 * a
             t = bhaskara_upper / bhaskara_lower
             t2 = bhaskara_upper2 / bhaskara_lower
-            if t<=0:
+            if t<=0.01:
                 t = 10000
-            if t2<=0:
+            if t2<=0.01:
                 t2 = 10000
             if t==10000 and t2==10000:
                 return Esfera.Intersecao_Return(False, 1000000, np.array([0, 0, 0]))
@@ -69,7 +85,8 @@ class Esfera:
         return Esfera.Intersecao_Return(False, 1000000, np.array([0, 0, 0]))
 
 class Malha:
-    def __init__(self, n_triangulos, n_vertices, lista_vertices, triplas, lista_normais, lista_normais_vertices, lista_cores_normalizadas):
+    def __init__(self, n_triangulos, n_vertices, lista_vertices, triplas, lista_normais, lista_normais_vertices, lista_cores_normalizadas, cor,
+                 k_ambiente, k_difuso, k_especular, n, k_reflexao,k_refracao,ind_refracao ):
         self.n_triangulos = n_triangulos
         self.n_vertices = n_vertices
         self.tipo = "Malha"
@@ -78,9 +95,18 @@ class Malha:
         self.normais_t = lista_normais
         self.normais_v = lista_normais_vertices
         self.lista_cores_normalizadas = lista_cores_normalizadas
+        self.cor = cor
+        self.k_ambiente = k_ambiente
+        self.k_difuso = k_difuso
+        self.k_especular = k_especular
+        self.n = n
+        self.k_reflexao = k_reflexao
+        self.k_refracao = k_refracao
+        self.IOR = ind_refracao
+        
 
     def intersecao_reta_malha(self, vdiretor, P):
-        menor_t = self.Intersecao_Return(False, 1000000, np.array([0, 0, 0]), self.lista_cores_normalizadas[0])
+        menor_t = self.Intersecao_Return(False, 1000000, np.array([0, 0, 0]), self.lista_cores_normalizadas[0], None)
         for idx_triangulo in range(self.n_triangulos):
             intersecao = self.intersecao_triangulo_reta(vdiretor, P, idx_triangulo)
             if intersecao.intersecao and intersecao.t <= menor_t.t:
@@ -88,21 +114,22 @@ class Malha:
         return menor_t
 
     class Intersecao_Return:
-        def __init__(self, intersecao, t, ponto_intersecao, cor_normalizada):
+        def __init__(self, intersecao, t, ponto_intersecao, cor_normalizada, normal_ponto):
             self.intersecao = intersecao
             self.t = t
             self.ponto_intersecao = ponto_intersecao
             self.cor_normalizada = cor_normalizada
+            self.normal_ponto = normal_ponto
     
     def calculo_ponto_intersecao(self, vdiretor, P, vetor_normal, ponto_plano):
         temp = np.dot(vetor_normal, vdiretor)
         if temp == 0:
-            return Malha.Intersecao_Return(False, 1000000, np.array([0, 0, 0]), self.lista_cores_normalizadas[0])
+            return Malha.Intersecao_Return(False, 1000000, np.array([0, 0, 0]), self.lista_cores_normalizadas[0], None)
         t = (np.dot(vetor_normal, ponto_plano) - np.dot(vetor_normal,P)) / temp
         x = P[0] + vdiretor[0] * t
         y = P[1] + vdiretor[1] * t
         z = P[2] + vdiretor[2] * t
-        return Malha.Intersecao_Return(True, t, np.array([x, y, z]), self.lista_cores_normalizadas[0])
+        return Malha.Intersecao_Return(True, t, np.array([x, y, z]), self.lista_cores_normalizadas[0], vetor_normal)
 
     def intersecao_triangulo_reta(self, vdiretor, P, idx_triangulo):
         tripla_triangulo = self.triangulos[idx_triangulo]
@@ -111,7 +138,7 @@ class Malha:
 
         temp = np.dot(normal_triangulo, vdiretor)
         if temp == 0:
-            return Malha.Intersecao_Return(False, 1000000, np.array([0,0,0]), cor_normalizada)
+            return Malha.Intersecao_Return(False, 1000000, np.array([0,0,0]), cor_normalizada, None)
         else:
             # Definindo coordenadas baricêntricas
             p1 = self.lista_vertices[tripla_triangulo[0]]
@@ -143,9 +170,9 @@ class Malha:
                 u = 1.0 - v - w
 
                 if v >= 0 and w >= 0 and u >= 0:
-                    return Malha.Intersecao_Return(True, intersecao_plano.t, ponto_intersecao, cor_normalizada)
+                    return Malha.Intersecao_Return(True, intersecao_plano.t, ponto_intersecao, cor_normalizada, normal_triangulo)
                 else:
-                    return Malha.Intersecao_Return(False, 1000000, np.array([0,0,0]), cor_normalizada)
+                    return Malha.Intersecao_Return(False, 1000000, np.array([0,0,0]), cor_normalizada, None)
             else:
-                return Malha.Intersecao_Return(False, 1000000, np.array([0,0,0]), cor_normalizada)
+                return Malha.Intersecao_Return(False, 1000000, np.array([0,0,0]), cor_normalizada, None)
             
