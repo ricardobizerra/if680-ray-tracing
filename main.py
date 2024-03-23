@@ -19,7 +19,7 @@ def main():
     # up_vector = affine_transform(up_vector, 'rotate_x', angle=math.pi/2)
 
     # Inicialização dos objetos Camera, Esfera e Plano com base nos dados inseridos
-    cam = Camera(camera_ponto2, alvo_ponto, up_vector)
+    cam = Camera(camera_ponto1, alvo_ponto, up_vector)
     esfera1 = Esfera(np.array([2,0,-1]), 1/2, np.array([255,255,0]), k_ambiente=0.3, k_difuso=0.7, k_especular=0.3, k_reflexao= 0.5, k_refracao=0.2, ind_refracao=1.52, n=500)  # Raio da esfera definido como 1
     esfera2 = Esfera(np.array([2,0,1]), 1/2, np.array([200,50,200]), k_ambiente=0.3, k_difuso=0.5, k_especular=0.5, k_reflexao=0.8, k_refracao=0.8, ind_refracao=1.52, n=500)
     esfera5 = Esfera(np.array([2,0,1]), 1/2, np.array([200,50,200]), k_ambiente=0.3, k_difuso=0.5, k_especular=0.5, k_reflexao=0, k_refracao=0, ind_refracao=1.52, n=500)
@@ -58,7 +58,11 @@ def main():
                   [[255,255,255], [255,0,0], [0,255,0], [0,0,255]],
                   np.array([0,255,255]),
                   k_ambiente=0.3, k_difuso=0.5, k_especular=0.5, n=500, k_reflexao=0.8,ind_refracao=1.52, k_refracao=0.5)
-    objects = [esfera1, esfera2, esfera3]
+    bezier1 = [p0, p1, p2]
+    bezier2 = [p3, p4, np.array([0,-1,-1])]
+    bezier_surface = beziersurface.Bezier(np.array([bezier1, bezier2]))
+    malha_bezier = bezier_surface.triangularizar(0.1)
+    objects = [malha_bezier]
     # Realização do raycasting com os parâmetros fornecidos
     cam.raycasting(1, 500, 500, objects)
 

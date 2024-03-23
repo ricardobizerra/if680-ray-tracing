@@ -99,8 +99,8 @@ class Bezier:
         lista_normais = []
         for triangulo in triplas:
             p0 = pontos_bezier[triangulo[0]]
-            p1 = pontos_bezier[triangulo[2]]
-            p2 = pontos_bezier[triangulo[3]]
+            p1 = pontos_bezier[triangulo[1]]
+            p2 = pontos_bezier[triangulo[2]]
 
             normal = np.cross(p1 - p0, p2 - p0)
             norma = np.linalg.norm(normal)
@@ -110,7 +110,7 @@ class Bezier:
 
         cor = np.array([255,255,0])
         lista_cores = []
-        for i in range(triplas):
+        for i in range(len(triplas)):
             lista_cores.append(cor)
 
         # Criação do objeto Malha (alguns parâmetros foram omitidos por simplicidade)
