@@ -4,71 +4,51 @@ import cv2 as cv
 import numpy as np
 import math
 
-def bezierSurface(x,y,z,uCELLS, wCELLS):
-    print("Alagoas")
-    #Pontos de controle
-    #x = np.array([])
-    #y = np.array([])
-    #z = np.array([])
 
-    #Numero de celulas para cada direção
+class Bezier:
+    def __init__(self, control_points):
+       
+        self.control_points = control_points
 
-    #uCELLS = 12
-    #wCELLS = 10
+    @staticmethod
+    def _binomial_coefficient(n, k):
+        
+        return np.math.factorial(n) / (np.math.factorial(k) * np.math.factorial(n - k))
 
-    #Número total de pontos de controle em U
-    uPTS = np.size(x, 0)
-    wPTS = np.size(x, 1)
+    @staticmethod
+    def _bernstein_polynomial(n, i, t):
+        
+        return Bezier._binomial_coefficient(n, i) * (t ** i) * ((1 - t) ** (n - i))
+    def point_on_surface(self, u, w):
+        
+        u_pts, w_pts, _ = self.control_points.shape
+        point = np.zeros(3)  # Initialize the point
 
-    # Numero total de subdivisoes
+        for i in range(u_pts):
+            for j in range(w_pts):
+                bu = self._bernstein_polynomial(u_pts - 1, i, u)
+                bw = self._bernstein_polynomial(w_pts - 1, j, w)
+                point += bu * bw * self.control_points[i, j, :]
 
-    n = uPTS - 1
-    m = wPTS - 1
-
-    # Variaveis parametricas
-
-    u = np.linspace(0, 1, uCELLS)
-    w = np.linspace(0, 1, wCELLS)
-
-    #Inicializar matriz vazia para as curvas de bezier de X,Y e Z
-
-    xBezier = np.zeros((uCELLS,wCELLS))
-    yBezier = np.zeros((uCELLS,wCELLS))
-    zBezier = np.zeros((uCELLS,wCELLS))
-
-    #Coeficientes Binomiais
-
-    def Ni(n, i):
-        return np.math.factorial(n) / (np.math.factorial(i) * np.math.factorial(n- i))
-    def Mj(m, j):
-        return np.math.factorial(m) / (np.math.factorial(j) * np.math.factorial(m- j))    
-
-    # Base Polinomial de Bernstein
-
-    def J(n, i, u):
-        return np.matrix(Ni(n,i) * (u** i) * (1 - u) ** (n-i))
+        return point
     
-    def K(m, j, w):
-        return np.matrix(Mj(m,j) * (w** j) * (1 - w) ** (m-j))
-    
-    #Variaveis para guaraar as bases polinomiais de bernstein
-    b = []
-    d = []
-    #Loop principal
-    #Basicamente percorremos a matriz u x w
-    
-    for i in range(0,uPTS):
+    def bezier_surface(self, u_cells=10, w_cells=10):
+      
+        u_pts, w_pts, _ = self.control_points.shape
+        u = np.linspace(0, 1, u_cells)
+        w = np.linspace(0, 1, w_cells)
 
-        for j in range(0,wPTS):
-            b.append(J(n,i,u))
-            d.append(K(m,j,w))
-            #Fazer a transposta do array J
-            Jt = J(n,i,u).transpose()
+        # Initialize the surface
+        surface = np.zeros((u_cells, w_cells, 3))
 
-            # Calculo da curva de bezier
-            xBezier = Jt * K(m,j,w) * x[i,j] + xBezier
-            yBezier = Jt * K(m,j,w) * y[i,j] + yBezier
-            zBezier = Jt * K(m,j,w) * z[i,j] + zBezier
+        for i in range(u_pts):
+            for j in range(w_pts):
+                b_i = np.array([self._bernstein_polynomial(u_pts - 1, i, u_val) for u_val in u])
+                b_j = np.array([self._bernstein_polynomial(w_pts - 1, j, w_val) for w_val in w])
+                
+                # Update the surface points
+                for k in range(u_cells):
+                    for l in range(w_cells):
+                        surface[k, l, :] += b_i[k] * b_j[l] * self.control_points[i, j, :]
 
-    
-    return xBezier,yBezier,zBezier
+        return surface
