@@ -311,11 +311,20 @@ class Camera:
         centro_tela = (self.W * distancia)
         pixel_0_0 = centro_tela - (0.5 * self.U) - (0.5 * self.UP)
         imagem = np.zeros((vres, hres, 3), dtype=np.uint8)  # Imagem a ser gerada
+
+        total_pixels = vres * hres
+        pixels_processados = 0
+        
         for i in range(vres):
             for j in range(hres):
                 vetor_atual = pixel_0_0 + deslocamento_vertical * i + deslocamento_horizontal * j
                 cor = self.intersect(vetor_atual, objects)
                 imagem[i, j] = cor
+
+                pixels_processados += 1
+                if pixels_processados % 100 == 0:  # Atualiza a porcentagem a cada 100 pixels processados para reduzir o overhead de impressão
+                    porcentagem_conclusao = (pixels_processados / total_pixels) * 100
+                    print(f"Progresso: {porcentagem_conclusao:.2f}% concluído", end='\r')
         cv.imshow("Raycasting", imagem)
         cv.waitKey(0)
         cv.destroyAllWindows('i')
