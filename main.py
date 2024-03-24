@@ -32,6 +32,18 @@ def main():
     p2 = np.array([-1, 0, 0])
     p3 = np.array([0, -1, 0])
     p4 = np.array([0, 0, 1])
+    p5 = np.array([0.5, 0.5, 0])  # Entre p0 e p1
+    p6 = np.array([0, 0.5, 0.5])  # Entre p0 e p1, adicionando uma variação na z para curvatura
+    p7 = np.array([-0.5, 0.5, 0]) # Entre p1 e p2
+    p8 = np.array([-0.5, 0, 0.5]) # Entre p1 e p2, adicionando uma variação na z para curvatura
+    p9 = np.array([-0.5, -0.5, 0]) # Entre p2 e p3
+    p10 = np.array([0, -0.5, 0.5]) # Entre p2 e p3, adicionando uma variação na z para curvatura
+    p11 = np.array([0.5, -0.5, 0]) # Entre p3 e p4
+    p12 = np.array([0.5, 0, 0.5])
+    p13 = np.array([1, 1, 0.5])  
+    p14 = np.array([-1, 1, 0.5]) 
+    p15 = np.array([-1, -1, 0.5])
+    p16 = np.array([1, -1, 0.5])
 
     n1 = np.cross(p1 - p0, p4 - p0)
     norma1 = np.linalg.norm(n1)
@@ -58,9 +70,13 @@ def main():
                   [[255,255,255], [255,0,0], [0,255,0], [0,0,255]],
                   np.array([0,255,255]),
                   k_ambiente=0.3, k_difuso=0.5, k_especular=0.5, n=500, k_reflexao=0.8,ind_refracao=1.52, k_refracao=0.5)
-    bezier1 = [p0, p1, p2]
-    bezier2 = [p3, p4, np.array([0,-1,-1])]
-    bezier_surface = beziersurface.Bezier(np.array([bezier1, bezier2]))
+    bezier1 = [p0, p1, p5,p6]
+    bezier3 = [p1, p2, p7,p8]
+    bezier4 = [p2, p3, p9,p10]
+    bezier2 = [p3, p4, p11,p12]
+    bezier5 = [p0, p13, p14, p2] 
+    bezier6 = [p2, p15, p16, p0]
+    bezier_surface = beziersurface.Bezier(np.array([bezier1, bezier2,bezier3,bezier4]))
     malha_bezier = bezier_surface.triangularizar(0.1)
     objects = [malha_bezier]
     # Realização do raycasting com os parâmetros fornecidos
