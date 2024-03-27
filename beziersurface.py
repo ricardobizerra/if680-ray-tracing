@@ -16,9 +16,10 @@ def ajustar_valores(espacamento):
 
 
 class Bezier:
-    def __init__(self, control_points):
+    def __init__(self, control_points, cor):
        
         self.control_points = control_points
+        self.cor = cor
 
     @staticmethod
     def _binomial_coefficient(n, k):
@@ -108,15 +109,14 @@ class Bezier:
             
             lista_normais.append(normal)
 
-        cor = np.array([255,255,0])
         lista_cores = []
         for i in range(len(triplas)):
-            lista_cores.append(cor)
+            lista_cores.append(self.cor)
 
         # Criação do objeto Malha (alguns parâmetros foram omitidos por simplicidade)
         malha = Malha(n_triangulos=len(triplas), n_vertices=len(pontos_bezier), lista_vertices=pontos_bezier, triplas=triplas,
-                    lista_normais=lista_normais, lista_normais_vertices=[], lista_cores_normalizadas=lista_cores, cor=cor,
-                    k_ambiente=0.1, k_difuso=0.1, k_especular=0.1, n=50, k_reflexao=0, k_refracao=0, ind_refracao=0)
+                    lista_normais=lista_normais, lista_normais_vertices=[], lista_cores_normalizadas=lista_cores, cor=self.cor,
+                    k_ambiente=0.5, k_difuso=0.5, k_especular=0.5, n=50, k_reflexao=0, k_refracao=0, ind_refracao=0)
 
         return malha
 

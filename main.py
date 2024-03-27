@@ -11,6 +11,7 @@ def main():
     # Criação dos objetos Ponto e Vector com base nos valores fornecidos
     camera_ponto1 =  np.array([-2,2,1])
     camera_ponto2 = np.array([0,0,0])
+    camera_ponto3 = np.array([0,-1,0])
     alvo_ponto = np.array([1, 0, 0])
     up_vector = np.array([0,0,1])
    
@@ -76,9 +77,35 @@ def main():
     bezier2 = [p3, p4, p11,p12]
     bezier5 = [p0, p13, p14, p2] 
     bezier6 = [p2, p15, p16, p0]
-    bezier_surface = beziersurface.Bezier(np.array([bezier1, bezier2,bezier3,bezier4]))
-    malha_bezier = bezier_surface.triangularizar(0.1)
-    objects = [malha_bezier]
+
+    bezier_surface = beziersurface.Bezier(np.array([bezier1, bezier2, bezier3, bezier4, bezier5, bezier6]), cor=np.array([0,0,255]))
+    bezier_malha = bezier_surface.triangularizar(0.1)
+
+    # Simulando relevo
+    curve1 = [np.array([-1,1/2,-1]), np.array([0,0,-1]), np.array([1,0.5,-1]), np.array([2,-0.5,-1]), np.array([3,1/3,-1.5]), np.array([4,-1/3,-2])]
+    curve2 = [np.array([-1,1/2,0]), np.array([0,0,0]), np.array([1.5,1/3,0]), np.array([2.5, -0.25, 0]), np.array([3.2, 0, 0]), np.array([4, -1/2, 0])]
+    curve3 = [np.array([-1,1/2,1]), np.array([0,0, 1]), np.array([0.7,-0.25,1]), np.array([2,1/2,1]), np.array([3,-2/3,1.5]), np.array([4,-1/2,2])]
+
+    # Simulando um tronco
+    tronco1 = [np.array([1.2,1/2,-1/3]), np.array([1,1/4,-1/4]), np.array([1,0,-1/6]), np.array([1,-1/8,1/4])]
+    tronco2 = [np.array([3/4,1/2,0]), np.array([3/4,1/4,-1/8]), np.array([3/4,0,1/8]), np.array([3/4,-1/8,1/10])]
+    tronco3 = [np.array([1.2,1/2,1/3]), np.array([1,1/4,1/5]), np.array([1,0,1/6]), np.array([1,-1/8,1/8])]
+
+    relevo = beziersurface.Bezier(np.array([curve1, curve2, curve3]), cor=np.array([0,255,0]))
+    malha_relevo = relevo.triangularizar(0.1)
+
+    tronco = beziersurface.Bezier(np.array([tronco1, tronco2, tronco3]), cor = np.array([0,51,102]))
+    malha_tronco = tronco.triangularizar(0.1)
+
+    # Simulando a copa da árvore
+    copa1 = Esfera(np.array([1,-1/8,0]), 1/6, np.array([0, 102, 0]), k_ambiente=0.3, k_difuso=0.7, k_especular=0.3, k_reflexao= 0, k_refracao=0, ind_refracao=1.52, n=500)
+    copa2 = Esfera(np.array([1,-1/4,0]), 1/8, np.array([0, 102, 0]), k_ambiente=0.3, k_difuso=0.7, k_especular=0.3, k_reflexao= 0, k_refracao=0, ind_refracao=1.52, n=500)
+    copa3 = Esfera(np.array([1,-1/8,-1/6]), 1/8, np.array([0, 102, 0]), k_ambiente=0.3, k_difuso=0.7, k_especular=0.3, k_reflexao= 0, k_refracao=0, ind_refracao=1.52, n=500)
+    copa4 = Esfera(np.array([1,-1/8,1/6]), 1/8, np.array([0, 102, 0]), k_ambiente=0.3, k_difuso=0.7, k_especular=0.3, k_reflexao= 0, k_refracao=0, ind_refracao=1.52, n=500)
+    copa5 = Esfera(np.array([1,-1/4,-1/8]), 1/12, np.array([0, 102, 0]), k_ambiente=0.3, k_difuso=0.7, k_especular=0.3, k_reflexao= 0, k_refracao=0, ind_refracao=1.52, n=500)
+    copa6 = Esfera(np.array([1,-1/4,1/8]), 1/12, np.array([0, 102, 0]), k_ambiente=0.3, k_difuso=0.7, k_especular=0.3, k_reflexao= 0, k_refracao=0, ind_refracao=1.52, n=500)
+    objects = [copa2,copa1, copa3, copa4, copa5, copa6, malha_relevo, malha_tronco]
+    objects = [malha_tronco]
     # Realização do raycasting com os parâmetros fornecidos
     cam.raycasting(1, 500, 500, objects)
 

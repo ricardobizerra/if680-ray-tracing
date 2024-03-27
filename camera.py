@@ -147,9 +147,9 @@ class Camera:
         if posicao is None:
             posicao = self.posicao
         menor_t = 1000000
-        cor = np.array([0, 0, 0])
+        cor = np.array([255, 153, 51])
         for obj in objects:
-            array_pontos_luz = np.array([np.array([0,0,0])])  # Fontes de luz
+            array_pontos_luz = np.array([np.array([0,-1,0])])  # Fontes de luz
             # Parâmetros da equação de Phong
             cor_luz_ambiente = np.array([255,255,255])
             I_l = [np.array([255, 255, 255])]
