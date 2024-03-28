@@ -104,12 +104,21 @@ class Malha:
         self.k_refracao = k_refracao
         self.IOR = ind_refracao
         
-    def triangularizar(self):
+    def triangle_list(self):
         """ Retorna lista de triângulos dessa malha """
         triangle_list = []
         for i in range(self.n_triangulos):
             tripla = self.triangulos[i]
-            triangle = Triangle(self.lista_vertices[tripla[0]], self.lista_vertices[tripla[1]], self.lista_vertices[tripla[2]], self.normais_t[i])
+            triangle = Triangle(self.lista_vertices[tripla[0]], self.lista_vertices[tripla[1]], self.lista_vertices[tripla[2]], self.normais_t[i],
+                                cor= self.cor,
+                                k_ambiente=self.k_ambiente,
+                                k_difuso=self.k_difuso,
+                                k_especular=self.k_especular,
+                                k_reflexao=self.k_reflexao,
+                                k_refracao=self.k_refracao,
+                                ind_refracao=self.IOR,
+                                n=self.n
+                                )
             triangle_list.append(triangle)
         return triangle_list
     

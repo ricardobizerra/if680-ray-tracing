@@ -108,7 +108,7 @@ def main():
     objects = [copa2,copa1, copa3, copa4, copa5, copa6, malha_relevo, malha_tronco]
     objects = [malha_tronco]
     triangle = Triangle(p1, p2, p4, n2, np.array([0,0,0]), 0.5, 0.5, 0.5, 0, 0, 1.4, 300)
-    objects = [triangle]
+    objects = malha.triangle_list()
     # Realização do raycasting com os parâmetros fornecidos
     cam.raycasting(1, 500, 500, objects)
 
