@@ -302,6 +302,50 @@ class Camera:
                                 )
                         cor = cor_final
                         menor_t = inter_malha.t
+            elif obj.tipo == "Triangle":
+                inter_triangle = obj.intersecao_triangulo_reta(vetor_atual, posicao)
+                if inter_triangle.intersecao:
+                    if inter_triangle.t <= menor_t and inter_triangle.t >= 0.01:
+                        # Cálculo do vetor normal do ponto:
+                        vetor_normal = inter_triangle.normal_ponto
+                        cos = np.dot(vetor_normal, vetor_atual)
+                        if cos > 0:
+                            vetor_normal = vetor_normal * -1
+
+                        # Definindo e normalizando vetores dos arrays:
+                        for i in range(len(array_pontos_luz)):
+                            vetor_luz = normalize(array_pontos_luz[i] - inter_triangle.ponto_intersecao)
+                            array_vetores_luz.append(vetor_luz)
+                            vetor_refletido = normalize(2 * np.dot(vetor_normal, vetor_luz) * vetor_normal - vetor_luz)
+                            R_array.append(vetor_refletido)
+
+                        # Calcular a cor do pixel usando a equação de Phong
+                        cor_final = self.phong(
+                                current_obj=obj,
+                                k_a=obj.k_ambiente,
+                                I_a=cor_luz_ambiente,
+                                I_l=I_l,
+                                k_d=obj.k_difuso,
+                                O_d=obj.cor,
+                                N=vetor_normal,
+                                L=array_vetores_luz,
+                                k_s=obj.k_especular,
+                                R=R_array,
+                                V=normalize(vetor_atual),
+                                n=obj.n,
+                                lim_r=3,
+                                k_r=obj.k_reflexao,
+                                vetor_camera=normalize(posicao - inter_triangle.ponto_intersecao),
+                                objects=objects,
+                                ponto_intersecao=inter_triangle.ponto_intersecao,
+                                refracao=refracao,
+                                n_in=n_in,
+                                n_out= n_out,
+                                reflexao=reflexao,
+                                k_t=obj.k_refracao,
+                                )
+                        cor = cor_final
+                        menor_t = inter_triangle.t
 
         return cor
 

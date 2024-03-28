@@ -1,7 +1,7 @@
 import math
 from vectors import Ponto, Vector, produto_escalar
 import numpy as np
-
+from bsp import Triangle
 
 class Plano:
     def __init__(self, vetor_normal, Ponto, cor, k_ambiente, k_difuso, k_especular, k_reflexao, k_refracao, ind_refracao, n):
@@ -104,7 +104,15 @@ class Malha:
         self.k_refracao = k_refracao
         self.IOR = ind_refracao
         
-
+    def triangularizar(self):
+        """ Retorna lista de triângulos dessa malha """
+        triangle_list = []
+        for i in range(self.n_triangulos):
+            tripla = self.triangulos[i]
+            triangle = Triangle(self.lista_vertices[tripla[0]], self.lista_vertices[tripla[1]], self.lista_vertices[tripla[2]], self.normais_t[i])
+            triangle_list.append(triangle)
+        return triangle_list
+    
     def intersecao_reta_malha(self, vdiretor, P):
         menor_t = self.Intersecao_Return(False, 1000000, np.array([0, 0, 0]), self.lista_cores_normalizadas[0], None)
         for idx_triangulo in range(self.n_triangulos):
