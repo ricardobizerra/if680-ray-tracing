@@ -18,7 +18,7 @@ def ajustar_valores(espacamento):
 class Bezier:
     def __init__(self, control_points, cor):
        
-        self.control_points = control_points
+        self.control_points = control_points # [[p0, p1, p2], [p4, p5, p6], [p7, p8, p9]]
         self.cor = cor
 
     @staticmethod

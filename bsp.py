@@ -151,8 +151,12 @@ def split_polygon(triangle, plane_triangle):
         # Verifica se a aresta entre os pontos atuais intersecta o plano
         if current_distance * next_distance < 0:  # Sinais diferentes indicam interseção
             intersection_point = calculate_intersection_point(current_point, next_point, plane_triangle.v1, plane_triangle.normal)
-            front_points.append(intersection_point)
-            back_points.append(intersection_point)
+            
+            if intersection_point not in front_points:
+                front_points.append(intersection_point)
+
+            if intersection_point not in back_points:
+                back_points.append(intersection_point)
 
     # Construção dos triângulos
     if len(front_points) == 3:
