@@ -157,7 +157,7 @@ def split_polygon(triangle, plane_triangle):
     # Construção dos triângulos
     if len(front_points) == 3:
         front_triangle = Triangle(front_points[0], front_points[1], front_points[2], triangle.normal)
-    elif len(front_points > 3):
+    elif len(front_points) > 3:
         # Identificar pontos de interseção e vértices originais
         intersection_points = [p for p in front_points if p not in points]
         original_vertices = [p for p in front_points if p in points]
@@ -182,7 +182,7 @@ def split_polygon(triangle, plane_triangle):
 
     if len(back_points) == 3:
         back_triangle = Triangle(back_points[0], back_points[1], back_points[2], triangle.normal)
-    elif len(back_points > 3):
+    elif len(back_points) < 3:
         # Identificar pontos de interseção e vértices originais
         intersection_points = [p for p in back_points if p not in points]
         original_vertices = [p for p in back_points if p in points]
