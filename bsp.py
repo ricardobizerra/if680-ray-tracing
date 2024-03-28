@@ -9,12 +9,20 @@ class Intersecao_Return:
             self.normal_ponto = normal_ponto
 
 class Triangle:
-    def __init__(self, vertice1, vertice2, vertice3, normal):
+    def __init__(self, vertice1, vertice2, vertice3, normal, cor, k_ambiente, k_difuso, k_especular, k_reflexao, k_refracao, ind_refracao, n):
         self.v1 = vertice1
         self.v2 = vertice2
         self.v3 = vertice3
-        self.normal = normal
         self.tipo = "Triangle"
+        self.normal = normal
+        self.cor = cor
+        self.k_ambiente = k_ambiente
+        self.k_difuso = k_difuso
+        self.k_especular = k_especular
+        self.k_reflexao = k_reflexao
+        self.k_refracao = k_refracao
+        self.IOR = ind_refracao
+        self.n = n
     
     def calculo_ponto_intersecao(self, vdiretor, P, vetor_normal, ponto_plano):
         temp = np.dot(vetor_normal, vdiretor)

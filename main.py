@@ -5,6 +5,7 @@ from transform import affine_transform
 import numpy as np
 import math
 import beziersurface
+from bsp import Triangle
 
 def main():
     # Definição dos valores para a câmera, alvo, up, centro da esfera, ponto do plano e normal ao plano   
@@ -106,6 +107,8 @@ def main():
     copa6 = Esfera(np.array([1,-1/4,1/8]), 1/12, np.array([0, 102, 0]), k_ambiente=0.3, k_difuso=0.7, k_especular=0.3, k_reflexao= 0, k_refracao=0, ind_refracao=1.52, n=500)
     objects = [copa2,copa1, copa3, copa4, copa5, copa6, malha_relevo, malha_tronco]
     objects = [malha_tronco]
+    triangle = Triangle(p1, p2, p4, n2, np.array([0,0,0]), 0.5, 0.5, 0.5, 0, 0, 1.4, 300)
+    objects = [triangle]
     # Realização do raycasting com os parâmetros fornecidos
     cam.raycasting(1, 500, 500, objects)
 
