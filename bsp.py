@@ -90,11 +90,13 @@ class BSPNode:
             return
     
         if is_in_front(polygon, self.polygon):
+            print("entrou em is_in_front")
             if self.front is None:
                 self.front = BSPNode()
             self.front.add_polygon(polygon)
 
         elif is_behind(polygon, self.polygon):
+            print("entrou em is_behind")
             if self.back is None:
                 self.back = BSPNode()
             self.back.add_polygon(polygon)
@@ -117,6 +119,7 @@ class BSPNode:
                     self.back.add_polygon(part)
 
         else:
+            print("entrou no else")
             # O polígono está no mesmo plano que o polígono do nó
             self.polygons.append(polygon)
 
@@ -152,7 +155,9 @@ def is_in_front(triangle, plane_triangle):
         calculate_distance_to_plane(triangle.v2, plane_triangle.v1, plane_triangle.normal),
         calculate_distance_to_plane(triangle.v3, plane_triangle.v1, plane_triangle.normal)
     ]
-    return all(d > 0 for d in distances)
+
+    non_zero_distances = [d > 0.001 or d < 0.001 for d in distances]
+    return len(non_zero_distances) > 0 and all(d >= 0 for d in distances)
 
 def is_behind(triangle, plane_triangle):
     """
@@ -170,7 +175,9 @@ def is_behind(triangle, plane_triangle):
         calculate_distance_to_plane(triangle.v2, plane_triangle.v1, plane_triangle.normal),
         calculate_distance_to_plane(triangle.v3, plane_triangle.v1, plane_triangle.normal)
     ]
-    return all(d < 0 for d in distances)
+
+    non_zero_distances = [d > 0.001 or d < 0.001 for d in distances]
+    return len(non_zero_distances) > 0 and all(d <= 0 for d in distances)
 
 
 def is_intersected(triangle, plane_triangle):
@@ -189,6 +196,9 @@ def calculate_intersection_point(p1, p2, plane_point, plane_normal):
     intersection_point = p1 + t * line_direction
     return intersection_point
 
+def pontos_sao_iguais(p1, p2, tol=1e-6):
+    return np.linalg.norm(p1 - p2) < tol
+
 def split_polygon(triangle, plane_triangle):
     points = [triangle.v1, triangle.v2, triangle.v3]
     distances = [calculate_distance_to_plane(point, plane_triangle.v1, plane_triangle.normal) for point in points]
@@ -198,35 +208,33 @@ def split_polygon(triangle, plane_triangle):
     intersection_points = []
     original_front_vertices = []
     original_back_vertices = []
-    # Primeiro, adicione vértices exatamente no plano para ambos os lados
+
     for i, distance in enumerate(distances):
-        if distance == 0:
-            intersection_point = points[i]
-            front_points.append(intersection_point)
-            back_points.append(intersection_point)
-
-    # Processa cada aresta para verificar interseções com o plano
-    for i in range(3):
         current_point = points[i]
-        next_point = points[(i + 1) % 3]
         current_distance = distances[i]
-        next_distance = distances[(i + 1) % 3]
-
-        # Adiciona pontos com base na posição relativa ao plano
-        if current_distance > 0:
-            front_points.append(current_point)
-            original_front_vertices.append(current_point)
-        elif current_distance < 0:
-            back_points.append(current_point)
-            original_back_vertices.append(current_point)
 
         # Verifica se a aresta entre os pontos atuais intersecta o plano
-        if current_distance * next_distance < 0:  # Sinais diferentes indicam interseção
-            intersection_point = calculate_intersection_point(current_point, next_point, plane_triangle.v1, plane_triangle.normal)
-            intersection_points.append(intersection_point)
-            front_points.append(intersection_point)
+        next_index = (i + 1) % 3
+        next_point = points[next_index]
+        next_distance = distances[next_index]
 
-            back_points.append(intersection_point)
+        if distance > 0:
+            if not any(pontos_sao_iguais(current_point, p, 0) for p in front_points):
+                front_points.append(current_point)
+                original_front_vertices.append(current_point)
+        elif distance < 0:
+            if not any(pontos_sao_iguais(current_point, p, 0) for p in back_points):
+                back_points.append(current_point)
+                original_back_vertices.append(current_point)
+        
+        if distance == 0 or next_distance == 0 or current_distance * next_distance < 0:
+            intersection_point = calculate_intersection_point(current_point, next_point, plane_triangle.v1, plane_triangle.normal)
+            if not any(pontos_sao_iguais(intersection_point, p, 0) for p in intersection_points):
+                intersection_points.append(intersection_point)
+                if distance >= 0:  # Inclui casos de estar no plano e à frente dele
+                    front_points.append(intersection_point)
+                if distance <= 0:  # Inclui casos de estar no plano e atrás dele
+                    back_points.append(intersection_point)
 
     # Construção dos triângulos
     if len(front_points) == 3:
@@ -269,6 +277,9 @@ def split_polygon(triangle, plane_triangle):
                                   k_refracao=triangle.k_refracao,
                                   ind_refracao=triangle.IOR,
                                   n=triangle.n)
+        print("Entrou em front_points no split")
+        print(intersection_points)
+        print(original_front_vertices)
 
         front_triangle = [front_triangle_1, front_triangle_2]
     else:
@@ -314,6 +325,9 @@ def split_polygon(triangle, plane_triangle):
                                   k_refracao=triangle.k_refracao,
                                   ind_refracao=triangle.IOR,
                                   n=triangle.n)
+        print("Entrou em back points no split")
+        print(intersection_points)
+        print(original_back_vertices)
 
         back_triangle = [back_triangle_1, back_triangle_2]
     else:
