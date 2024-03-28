@@ -228,7 +228,15 @@ def split_polygon(triangle, plane_triangle):
 
     # Construção dos triângulos
     if len(front_points) == 3:
-        front_triangle = Triangle(front_points[0], front_points[1], front_points[2], triangle.normal)
+        front_triangle = Triangle(front_points[0], front_points[1], front_points[2], triangle.normal,
+                                  cor=triangle.cor,
+                                  k_ambiente=triangle.k_ambiente,
+                                  k_difuso=triangle.k_difuso,
+                                  k_especular=triangle.k_especular,
+                                  k_reflexao=triangle.k_reflexao,
+                                  k_refracao=triangle.k_refracao,
+                                  ind_refracao=triangle.IOR,
+                                  n=triangle.n)
     elif len(front_points) > 3:
         # Identificar pontos de interseção e vértices originais
         intersection_points = [p for p in front_points if p not in points]
@@ -245,15 +253,39 @@ def split_polygon(triangle, plane_triangle):
         other_vertex = original_vertices[1 - closest_vertex_index]
     
         # Formar os novos triângulos garantindo que o ponto de interseção de índice 0 esteja conectado ao vértice mais próximo
-        front_triangle_1 = Triangle(intersection_points[0], intersection_points[1], closest_vertex, triangle.normal)
-        front_triangle_2 = Triangle(intersection_points[1], closest_vertex, other_vertex, triangle.normal)
+        front_triangle_1 = Triangle(intersection_points[0], intersection_points[1], closest_vertex, triangle.normal,
+                                  cor=triangle.cor,
+                                  k_ambiente=triangle.k_ambiente,
+                                  k_difuso=triangle.k_difuso,
+                                  k_especular=triangle.k_especular,
+                                  k_reflexao=triangle.k_reflexao,
+                                  k_refracao=triangle.k_refracao,
+                                  ind_refracao=triangle.IOR,
+                                  n=triangle.n)
+        front_triangle_2 = Triangle(intersection_points[1], closest_vertex, other_vertex, triangle.normal,
+                                  cor=triangle.cor,
+                                  k_ambiente=triangle.k_ambiente,
+                                  k_difuso=triangle.k_difuso,
+                                  k_especular=triangle.k_especular,
+                                  k_reflexao=triangle.k_reflexao,
+                                  k_refracao=triangle.k_refracao,
+                                  ind_refracao=triangle.IOR,
+                                  n=triangle.n)
 
         front_triangle = [front_triangle_1, front_triangle_2]
     else:
         front_triangle = None
 
     if len(back_points) == 3:
-        back_triangle = Triangle(back_points[0], back_points[1], back_points[2], triangle.normal)
+        back_triangle = Triangle(back_points[0], back_points[1], back_points[2], triangle.normal,
+                                  cor=triangle.cor,
+                                  k_ambiente=triangle.k_ambiente,
+                                  k_difuso=triangle.k_difuso,
+                                  k_especular=triangle.k_especular,
+                                  k_reflexao=triangle.k_reflexao,
+                                  k_refracao=triangle.k_refracao,
+                                  ind_refracao=triangle.IOR,
+                                  n=triangle.n)
     elif len(back_points) < 3:
         # Identificar pontos de interseção e vértices originais
         intersection_points = [p for p in back_points if p not in points]
@@ -270,8 +302,24 @@ def split_polygon(triangle, plane_triangle):
         other_vertex = original_vertices[1 - closest_vertex_index]
     
         # Formar os novos triângulos garantindo que o ponto de interseção de índice 0 esteja conectado ao vértice mais próximo
-        back_triangle_1 = Triangle(intersection_points[0], intersection_points[1], closest_vertex, triangle.normal)
-        back_triangle_2 = Triangle(intersection_points[1], closest_vertex, other_vertex, triangle.normal)
+        back_triangle_1 = Triangle(intersection_points[0], intersection_points[1], closest_vertex, triangle.normal,
+                                  cor=triangle.cor,
+                                  k_ambiente=triangle.k_ambiente,
+                                  k_difuso=triangle.k_difuso,
+                                  k_especular=triangle.k_especular,
+                                  k_reflexao=triangle.k_reflexao,
+                                  k_refracao=triangle.k_refracao,
+                                  ind_refracao=triangle.IOR,
+                                  n=triangle.n)
+        back_triangle_2 = Triangle(intersection_points[1], closest_vertex, other_vertex, triangle.normal,
+                                  cor=triangle.cor,
+                                  k_ambiente=triangle.k_ambiente,
+                                  k_difuso=triangle.k_difuso,
+                                  k_especular=triangle.k_especular,
+                                  k_reflexao=triangle.k_reflexao,
+                                  k_refracao=triangle.k_refracao,
+                                  ind_refracao=triangle.IOR,
+                                  n=triangle.n)
 
         back_triangle = [back_triangle_1, back_triangle_2]
     else:
@@ -279,6 +327,9 @@ def split_polygon(triangle, plane_triangle):
 
     return front_triangle, back_triangle
 
-# Exemplo de uso
-root = BSPNode()
-# Aqui você adicionaria polígonos chamando root.add_polygon(polygon) para cada polígono
+def build_BSP_tree(triangle_list):
+    root = BSPNode()
+    for triangle in triangle_list:
+        root.add_polygon(triangle)
+    
+    return root
