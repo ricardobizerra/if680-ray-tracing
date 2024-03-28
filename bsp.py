@@ -333,3 +333,32 @@ def build_BSP_tree(triangle_list):
         root.add_polygon(triangle)
     
     return root
+
+def side_of_plane(point, triangle):
+    d = calculate_distance_to_plane(point, triangle.v1, triangle.normal)
+    return "FRONT" if d > 0 else "BACK"
+
+def traverse_bsp_and_collect_triangles(node, ray_origin, ray_direction, triangles=None):
+    if triangles is None:
+        triangles = []
+    if node is None:
+        return triangles
+    if node.polygon is None:  # Nó folha
+        triangles.extend(node.polygons)
+        return triangles
+    
+    # Verifica qual lado do plano o raio começa
+    start_side = side_of_plane(ray_origin, node.polygon)
+    if start_side == "FRONT":
+        first_node, second_node = node.front, node.back
+    else:
+        first_node, second_node = node.back, node.front
+    
+    # Traverse o primeiro nó e coleta os triângulos
+    traverse_bsp_and_collect_triangles(first_node, ray_origin, ray_direction, triangles)
+    
+    # Traverse o segundo nó e coleta os triângulos
+    traverse_bsp_and_collect_triangles(second_node, ray_origin, ray_direction, triangles)
+    
+    return triangles
+
