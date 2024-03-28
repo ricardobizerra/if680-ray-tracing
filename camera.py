@@ -3,6 +3,7 @@ from objects import Plano, Esfera, Malha
 import cv2 as cv
 import numpy as np
 import math
+from bsp import traverse_bsp_and_collect_triangles
 
 def normalize(vector):
     return vector / np.linalg.norm(vector)
@@ -349,7 +350,7 @@ class Camera:
 
         return cor
 
-    def raycasting(self, distancia, hres, vres, objects):
+    def raycasting(self, distancia, hres, vres, non_triangle_objects, BSP_tree):
         deslocamento_vertical = (2 * 0.5 / (hres - 1) * self.U)
         deslocamento_horizontal = (2 * 0.5 / (vres - 1) * self.UP)
         centro_tela = (self.W * distancia)
@@ -362,6 +363,8 @@ class Camera:
         for i in range(vres):
             for j in range(hres):
                 vetor_atual = pixel_0_0 + deslocamento_vertical * i + deslocamento_horizontal * j
+                triangles = traverse_bsp_and_collect_triangles(node=BSP_tree, ray_origin=self.posicao, ray_direction=vetor_atual)
+                objects = non_triangle_objects + triangles # Lista com todos os objetos intersectáveis da cena
                 cor = self.intersect(vetor_atual, objects)
                 imagem[i, j] = cor
 

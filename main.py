@@ -5,7 +5,7 @@ from transform import affine_transform
 import numpy as np
 import math
 import beziersurface
-from bsp import Triangle, BSPNode, build_BSP_tree
+from bsp import Triangle, BSPNode, build_BSP_tree, print_bsp_tree
 
 def main():
     # Definição dos valores para a câmera, alvo, up, centro da esfera, ponto do plano e normal ao plano   
@@ -109,9 +109,11 @@ def main():
     objects = [malha_tronco]
     triangle = Triangle(p1, p2, p4, n2, np.array([0,0,0]), 0.5, 0.5, 0.5, 0, 0, 1.4, 300)
     triangle_list = malha.triangle_list()
-    BSP_tree = build_BSP_tree()
+    BSP_tree = build_BSP_tree(malha_tronco.triangle_list())
+    print_bsp_tree(BSP_tree)
+    objects = []
     # Realização do raycasting com os parâmetros fornecidos
-    cam.raycasting(1, 500, 500, objects)
+    cam.raycasting(1, 500, 500, non_triangle_objects=objects, BSP_tree=BSP_tree)
 
 if __name__ == "__main__":
     main()

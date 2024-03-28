@@ -195,7 +195,9 @@ def split_polygon(triangle, plane_triangle):
 
     front_points = []
     back_points = []
-
+    intersection_points = []
+    original_front_vertices = []
+    original_back_vertices = []
     # Primeiro, adicione vértices exatamente no plano para ambos os lados
     for i, distance in enumerate(distances):
         if distance == 0:
@@ -213,18 +215,18 @@ def split_polygon(triangle, plane_triangle):
         # Adiciona pontos com base na posição relativa ao plano
         if current_distance > 0:
             front_points.append(current_point)
+            original_front_vertices.append(current_point)
         elif current_distance < 0:
             back_points.append(current_point)
+            original_back_vertices.append(current_point)
 
         # Verifica se a aresta entre os pontos atuais intersecta o plano
         if current_distance * next_distance < 0:  # Sinais diferentes indicam interseção
             intersection_point = calculate_intersection_point(current_point, next_point, plane_triangle.v1, plane_triangle.normal)
-            
-            if intersection_point not in front_points:
-                front_points.append(intersection_point)
+            intersection_points.append(intersection_point)
+            front_points.append(intersection_point)
 
-            if intersection_point not in back_points:
-                back_points.append(intersection_point)
+            back_points.append(intersection_point)
 
     # Construção dos triângulos
     if len(front_points) == 3:
@@ -238,19 +240,15 @@ def split_polygon(triangle, plane_triangle):
                                   ind_refracao=triangle.IOR,
                                   n=triangle.n)
     elif len(front_points) > 3:
-        # Identificar pontos de interseção e vértices originais
-        intersection_points = [p for p in front_points if p not in points]
-        original_vertices = [p for p in front_points if p in points]
-    
         # Calcular as distâncias entre o ponto de interseção de índice 0 e os vértices originais
-        distances = [np.linalg.norm(intersection_points[0] - v) for v in original_vertices]
+        distances = [np.linalg.norm(intersection_points[0] - v) for v in original_front_vertices]
     
         # Encontrar o vértice original mais próximo ao ponto de interseção de índice 0
         closest_vertex_index = np.argmin(distances)
-        closest_vertex = original_vertices[closest_vertex_index]
+        closest_vertex = original_front_vertices[closest_vertex_index]
     
         # O outro vértice original é aquele que não é o mais próximo
-        other_vertex = original_vertices[1 - closest_vertex_index]
+        other_vertex = original_front_vertices[1 - closest_vertex_index]
     
         # Formar os novos triângulos garantindo que o ponto de interseção de índice 0 esteja conectado ao vértice mais próximo
         front_triangle_1 = Triangle(intersection_points[0], intersection_points[1], closest_vertex, triangle.normal,
@@ -286,20 +284,16 @@ def split_polygon(triangle, plane_triangle):
                                   k_refracao=triangle.k_refracao,
                                   ind_refracao=triangle.IOR,
                                   n=triangle.n)
-    elif len(back_points) < 3:
-        # Identificar pontos de interseção e vértices originais
-        intersection_points = [p for p in back_points if p not in points]
-        original_vertices = [p for p in back_points if p in points]
-    
+    elif len(back_points) > 3:
         # Calcular as distâncias entre o ponto de interseção de índice 0 e os vértices originais
-        distances = [np.linalg.norm(intersection_points[0] - v) for v in original_vertices]
+        distances = [np.linalg.norm(intersection_points[0] - v) for v in original_back_vertices]
     
         # Encontrar o vértice original mais próximo ao ponto de interseção de índice 0
         closest_vertex_index = np.argmin(distances)
-        closest_vertex = original_vertices[closest_vertex_index]
+        closest_vertex = original_back_vertices[closest_vertex_index]
     
         # O outro vértice original é aquele que não é o mais próximo
-        other_vertex = original_vertices[1 - closest_vertex_index]
+        other_vertex = original_back_vertices[1 - closest_vertex_index]
     
         # Formar os novos triângulos garantindo que o ponto de interseção de índice 0 esteja conectado ao vértice mais próximo
         back_triangle_1 = Triangle(intersection_points[0], intersection_points[1], closest_vertex, triangle.normal,
@@ -343,7 +337,7 @@ def traverse_bsp_and_collect_triangles(node, ray_origin, ray_direction, triangle
         triangles = []
     if node is None:
         return triangles
-    if node.polygon is None:  # Nó folha
+    if node.front is None and node.back is None:  # Nó folha
         triangles.extend(node.polygons)
         return triangles
     
@@ -362,3 +356,29 @@ def traverse_bsp_and_collect_triangles(node, ray_origin, ray_direction, triangle
     
     return triangles
 
+def print_bsp_tree(node, depth=0):
+    # Base case: se o nó for None, a função retorna
+    if node is None:
+        return
+    
+    # Imprime a profundidade para dar uma noção da estrutura da árvore
+    indent = "  " * depth  # Cria um recuo baseado na profundidade do nó
+    
+    # Se o nó não contiver um polígono, ele é um nó folha
+    if node.polygon is None:
+        print(f"{indent}Nó Folha: {len(node.polygons)} polígono(s)")
+    else:
+        print(f"{indent}Nó com polígono: 1 polígono principal, {len(node.polygons) - 1} polígono(s) coplanares")
+    
+    # Para cada polígono no nó, imprime informações básicas
+    for polygon in node.polygons:
+        print(f"{indent}  Polígono: V1: {polygon.v1}, V2: {polygon.v2}, V3: {polygon.v3}, Normal: {polygon.normal}")
+    
+    # Recursivamente imprime os nós filhos, aumentando a profundidade
+    if node.front:
+        print(f"{indent}Front:")
+        print_bsp_tree(node.front, depth + 1)
+    
+    if node.back:
+        print(f"{indent}Back:")
+        print_bsp_tree(node.back, depth + 1)
