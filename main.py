@@ -1,10 +1,14 @@
-from vectors import Ponto, Vector
-from objects import Esfera, Plano, Malha
-from camera import Camera
-from transform import affine_transform
-import numpy as np
 import math
+
+import numpy as np
+
 import beziersurface
+from camera import Camera
+from objects import Esfera, Malha, Plano
+from toro import Toro, Toro2
+from transform import affine_transform
+from vectors import Ponto, Vector
+
 
 def main():
     # Definição dos valores para a câmera, alvo, up, centro da esfera, ponto do plano e normal ao plano   
@@ -104,8 +108,15 @@ def main():
     copa4 = Esfera(np.array([1,-1/8,1/6]), 1/8, np.array([0, 102, 0]), k_ambiente=0.3, k_difuso=0.7, k_especular=0.3, k_reflexao= 0, k_refracao=0, ind_refracao=1.52, n=500)
     copa5 = Esfera(np.array([1,-1/4,-1/8]), 1/12, np.array([0, 102, 0]), k_ambiente=0.3, k_difuso=0.7, k_especular=0.3, k_reflexao= 0, k_refracao=0, ind_refracao=1.52, n=500)
     copa6 = Esfera(np.array([1,-1/4,1/8]), 1/12, np.array([0, 102, 0]), k_ambiente=0.3, k_difuso=0.7, k_especular=0.3, k_reflexao= 0, k_refracao=0, ind_refracao=1.52, n=500)
-    objects = [copa2,copa1, copa3, copa4, copa5, copa6, malha_relevo, malha_tronco]
-    objects = [malha_tronco]
+    #objects = [copa2,copa1, copa3, copa4, copa5, copa6, malha_relevo, malha_tronco]
+    #objects = [malha_tronco]
+    
+    # toro = Toro(centro_y=0, centro_z=0, R=5, theta=math.pi/4, alfa=math.pi/4, cor=np.array([255,0,0]))
+    # toro1 = toro.triangularizar(0.1)
+
+    toro2 = Toro2(centro_y = 0, centro_z = 0, R=0.5, r=0.2, cor = np.array([255,0,0]))
+    malha_toro2 = toro2.triangularizar(math.pi/8)
+    objects = [malha_toro2]
     # Realização do raycasting com os parâmetros fornecidos
     cam.raycasting(1, 500, 500, objects)
 
