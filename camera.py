@@ -147,9 +147,9 @@ class Camera:
         if posicao is None:
             posicao = self.posicao
         menor_t = 1000000
-        cor = np.array([0, 0, 0])
+        cor = np.array([255, 153, 51])
         for obj in objects:
-            array_pontos_luz = np.array([np.array([0,0,0])])  # Fontes de luz
+            array_pontos_luz = np.array([np.array([0,-1,0])])  # Fontes de luz
             # Parâmetros da equação de Phong
             cor_luz_ambiente = np.array([255,255,255])
             I_l = [np.array([255, 255, 255])]
@@ -311,11 +311,20 @@ class Camera:
         centro_tela = (self.W * distancia)
         pixel_0_0 = centro_tela - (0.5 * self.U) - (0.5 * self.UP)
         imagem = np.zeros((vres, hres, 3), dtype=np.uint8)  # Imagem a ser gerada
+
+        total_pixels = vres * hres
+        pixels_processados = 0
+        
         for i in range(vres):
             for j in range(hres):
                 vetor_atual = pixel_0_0 + deslocamento_vertical * i + deslocamento_horizontal * j
                 cor = self.intersect(vetor_atual, objects)
                 imagem[i, j] = cor
+
+                pixels_processados += 1
+                if pixels_processados % 100 == 0:  # Atualiza a porcentagem a cada 100 pixels processados para reduzir o overhead de impressão
+                    porcentagem_conclusao = (pixels_processados / total_pixels) * 100
+                    print(f"Progresso: {porcentagem_conclusao:.2f}% concluído", end='\r')
         cv.imshow("Raycasting", imagem)
         cv.waitKey(0)
         cv.destroyAllWindows('i')
